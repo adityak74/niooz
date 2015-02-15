@@ -3,18 +3,22 @@ package in.niooz.niooz;
     import android.annotation.TargetApi;
     import android.app.Activity;
     import android.content.Intent;
+    import android.content.IntentSender;
+    import android.content.pm.PackageInfo;
+    import android.content.pm.PackageManager;
     import android.graphics.Bitmap;
     import android.graphics.Canvas;
     import android.graphics.Typeface;
     import android.graphics.drawable.BitmapDrawable;
+    import android.os.AsyncTask;
     import android.os.Build;
-    import android.os.Handler;
     import android.renderscript.Allocation;
     import android.renderscript.RenderScript;
     import android.renderscript.ScriptIntrinsicBlur;
-    import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.view.Menu;
+    import android.os.Bundle;
+    import android.util.Base64;
+    import android.util.Log;
+    import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
     import android.view.View;
@@ -24,29 +28,94 @@ import android.view.MenuItem;
     import android.widget.LinearLayout;
     import android.widget.RelativeLayout;
     import android.widget.TextView;
+    import android.widget.Toast;
+
+    import com.facebook.Session;
+    import com.facebook.SessionState;
+    import com.facebook.UiLifecycleHelper;
+    import com.facebook.widget.LoginButton;
+    import com.google.android.gms.auth.GoogleAuthException;
+    import com.google.android.gms.auth.GoogleAuthUtil;
+    import com.google.android.gms.auth.UserRecoverableAuthException;
+    import com.google.android.gms.common.ConnectionResult;
+    import com.google.android.gms.common.GooglePlayServicesUtil;
+    import com.google.android.gms.common.Scopes;
+    import com.google.android.gms.common.SignInButton;
+    import com.google.android.gms.common.api.GoogleApiClient;
+    import com.google.android.gms.plus.Plus;
+    import com.google.android.gms.plus.model.people.Person;
+
+    import java.io.IOException;
+    import java.security.MessageDigest;
+    import java.security.NoSuchAlgorithmException;
+    import java.security.Signature;
+    import java.util.Arrays;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
 
     private ImageView image;
-    private RelativeLayout rl1;
-    private static int SPLASH_TIME_OUT = 1000;
+    private String TAG = "MainActivity";
+    private static final int RC_SIGN_IN = 0;
+    private static int SPLASH_TIME_OUT = 3000;
     private TextView textView;
+    private UiLifecycleHelper uiHelper;
+    private boolean mIntentInProgress;
+    private GoogleApiClient mGoogleApiClient;
+    private boolean mSignInClicked;
+    private static final int PROFILE_PIC_SIZE = 400;
+    private ConnectionResult mConnectionResult;
+    String email,accessToken;
+    LoginButton authButton;
+    SignInButton btnSignIn;
+
+    private Session.StatusCallback callback = new Session.StatusCallback() {
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            onSessionStateChange(session, state, exception);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        uiHelper = new UiLifecycleHelper(getActivity(), callback);
+        uiHelper.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         textView = (TextView) findViewById(R.id.textView);
         image = (ImageView) findViewById(R.id.imageView);
-        rl1 = (RelativeLayout) findViewById(R.id.rl1);
+        authButton = (LoginButton) findViewById(R.id.fbAuthButton);
+        authButton.setReadPermissions(Arrays.asList("public_profile"));
+        btnSignIn = (SignInButton) findViewById(R.id.gplusAuthButton);
+
+        btnSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mGoogleApiClient.isConnecting()) {
+                    mSignInClicked = true;
+                    resolveSignInError();
+                }
+            }
+        });
+
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this).addApi(Plus.API)
+                .addScope(Plus.SCOPE_PLUS_LOGIN).build();
+
+
         applyBlur();
 
         Typeface custom_font = Typeface.createFromAsset(getAssets(),
                 "fonts/segoe-ui.ttf");
         textView.setTypeface(custom_font);
 
+        /*
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -57,7 +126,215 @@ public class MainActivity extends Activity {
                 finish();
             }
         },SPLASH_TIME_OUT);
+        */
 
+    }
+
+    public Activity getActivity(){
+        return this;
+    }
+
+    private void resolveSignInError() {
+        if (mConnectionResult.hasResolution()) {
+            try {
+                mIntentInProgress = true;
+                mConnectionResult.startResolutionForResult(this, RC_SIGN_IN);
+            } catch (IntentSender.SendIntentException e) {
+                mIntentInProgress = false;
+                mGoogleApiClient.connect();
+            }
+        }
+
+    }
+
+
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        if (!result.hasResolution()) {
+            GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this,
+                    0).show();
+            updateUI(false);
+            return;
+        }
+
+        if (!mIntentInProgress) {
+            // Store the ConnectionResult for later usage
+            mConnectionResult = result;
+
+            if (mSignInClicked) {
+                // The user has already clicked 'sign-in' so we attempt to
+                // resolve all
+                // errors until the user is signed in, or they cancel.
+                resolveSignInError();
+            }
+        }
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Session session = Session.getActiveSession();
+        if (session != null &&
+                (session.isOpened() || session.isClosed()) ) {
+            onSessionStateChange(session, session.getState(), null);
+        }
+
+        uiHelper.onResume();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == RC_SIGN_IN) {
+            if (resultCode != RESULT_OK) {
+                mSignInClicked = false;
+            }
+
+            mIntentInProgress = false;
+
+            if (!mGoogleApiClient.isConnecting()) {
+                mGoogleApiClient.connect();
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+        uiHelper.onActivityResult(requestCode, resultCode, data);
+
+
+    }
+
+    @Override
+    public void onConnected(Bundle arg0) {
+        mSignInClicked = false;
+        Toast.makeText(this, "User is connected using Google Plus Login!", Toast.LENGTH_LONG).show();
+
+        // Get user's information
+        new GetAccessToken().execute();
+
+        updateUI(true);
+
+
+        // Update the UI after signin
+        //updateUI(true);
+
+        //pDialog.dismiss();
+
+    }
+
+    public class GetAccessToken extends AsyncTask<Void,Void,Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                if (Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
+                    Person currentPerson = Plus.PeopleApi
+                            .getCurrentPerson(mGoogleApiClient);
+                    String personName = currentPerson.getDisplayName();
+                    String personPhotoUrl = currentPerson.getImage().getUrl();
+                    String personGooglePlusProfile = currentPerson.getUrl();
+                    email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+                    accessToken = GoogleAuthUtil.getToken(getApplicationContext(), email, "oauth2:" + Scopes.PLUS_LOGIN + " https://www.googleapis.com/auth/plus.profile.emails.read");
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),accessToken,Toast.LENGTH_LONG).show();
+                            Log.d("AccessToken",accessToken);
+                        }
+                    });
+
+                    Log.e(TAG, "Name: " + personName + ", plusProfile: "
+                            + personGooglePlusProfile + ", email: " + email
+                            + ", Image: " + personPhotoUrl);
+
+                    return null;
+                }
+            }catch (UserRecoverableAuthException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                Intent recover = e.getIntent();
+                startActivityForResult(recover, 125);
+
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (GoogleAuthException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Intent i = new Intent(MainActivity.this,HomeActivity.class);
+            i.putExtra("access_token",accessToken);
+            i.putExtra("provider","GooglePlus");
+            startActivity(i);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int arg0) {
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        uiHelper.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        uiHelper.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        uiHelper.onSaveInstanceState(outState);
+    }
+
+
+    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+        if (state.isOpened()) {
+            Log.i(TAG, "Logged in...");
+            Toast.makeText(getApplicationContext(),session.getAccessToken(),Toast.LENGTH_LONG).show();
+
+
+            updateUI(true);
+
+            Intent i = new Intent(MainActivity.this,HomeActivity.class);
+            i.putExtra("access_token",session.getAccessToken());
+            i.putExtra("provider","Facebook");
+            startActivity(i);
+
+
+
+
+        } else if (state.isClosed()) {
+            Log.i(TAG, "Logged out...");
+            updateUI(false);
+        }
     }
 
     private void applyBlur() {
@@ -112,22 +389,6 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public String toString() {
-        return "RenderScript";
-    }
-
-    private TextView addStatusText(ViewGroup container) {
-        TextView result = new TextView(MainActivity.this);
-        result.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        result.setTextColor(0xFFFFFFFF);
-        container.addView(result);
-        return result;
-    }
-
-
-
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         MenuInflater inflater = getMenuInflater();
@@ -148,5 +409,15 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateUI(boolean isSignedIn) {
+        if (isSignedIn) {
+            btnSignIn.setVisibility(View.GONE);
+            authButton.setVisibility(View.GONE);
+        } else {
+            btnSignIn.setVisibility(View.VISIBLE);
+            authButton.setVisibility(View.VISIBLE);
+        }
     }
 }

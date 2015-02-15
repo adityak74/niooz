@@ -31,4 +31,24 @@
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
+
+
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/gplusAuthButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fbAuthButton"
+        />
+
+
+    <com.facebook.widget.LoginButton
+        android:id="@+id/fbAuthButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        />
+
+
+
 </RelativeLayout>

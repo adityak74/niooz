@@ -4,14 +4,29 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class HomeActivity extends ActionBarActivity {
 
+
+    TextView loginRespTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        loginRespTv = (TextView) findViewById(R.id.loginResponse);
+
+        Bundle extras = getIntent().getExtras();
+        if(extras!=null){
+            String accessToken = extras.getString("access_token");
+            String provider = extras.getString("provider");
+            String res = "AccessToken : " + accessToken +"\n Provider : " + provider;
+            Toast.makeText(getApplicationContext(),res,Toast.LENGTH_LONG).show();
+            loginRespTv.setText(res);
+        }
+
     }
 
 
