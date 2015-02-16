@@ -1,31 +1,53 @@
 package in.niooz.niooz;
 
+import android.app.Activity;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 public class HomeActivity extends ActionBarActivity {
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    TextView loginRespTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        loginRespTv = (TextView) findViewById(R.id.loginResponse);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
         Bundle extras = getIntent().getExtras();
         if(extras!=null){
             String accessToken = extras.getString("access_token");
             String provider = extras.getString("provider");
             String res = "AccessToken : " + accessToken +"\n Provider : " + provider;
-            Toast.makeText(getApplicationContext(),res,Toast.LENGTH_LONG).show();
-            loginRespTv.setText(res);
+            Log.d("ACCESS_TOKEN,PROVIDER",res);
         }
+
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                Log.d("Swipe", "Refreshing Number");
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                }, 2500);
+            }
+        });
+
 
     }
 

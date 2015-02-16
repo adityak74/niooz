@@ -223,7 +223,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     @Override
     public void onConnected(Bundle arg0) {
         mSignInClicked = false;
-        Toast.makeText(this, "User is connected using Google Plus Login!", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "User is connected using Google Plus Login!", Toast.LENGTH_LONG).show();
 
         // Get user's information
         new GetAccessToken().execute();
@@ -254,7 +254,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(),accessToken,Toast.LENGTH_LONG).show();
+                            //Toast.makeText(getApplicationContext(),accessToken,Toast.LENGTH_LONG).show();
                             Log.d("AccessToken",accessToken);
                         }
                     });
@@ -288,6 +288,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             i.putExtra("access_token",accessToken);
             i.putExtra("provider","GooglePlus");
             startActivity(i);
+            finish();
         }
     }
 
@@ -318,7 +319,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         if (state.isOpened()) {
             Log.i(TAG, "Logged in...");
-            Toast.makeText(getApplicationContext(),session.getAccessToken(),Toast.LENGTH_LONG).show();
+            //Toast.makeText(getApplicationContext(),session.getAccessToken(),Toast.LENGTH_LONG).show();
 
 
             updateUI(true);
@@ -327,7 +328,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             i.putExtra("access_token",session.getAccessToken());
             i.putExtra("provider","Facebook");
             startActivity(i);
-
+            finish();
 
 
 
