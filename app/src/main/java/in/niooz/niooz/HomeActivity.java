@@ -1,6 +1,7 @@
 package in.niooz.niooz;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 public class HomeActivity extends ActionBarActivity {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    TextView hl1,hl2,hl3,hl4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,12 @@ public class HomeActivity extends ActionBarActivity {
             }
         });
 
+
+
+        hl1 = (TextView) findViewById(R.id.trendingHead1);
+        hl2 = (TextView) findViewById(R.id.trendingHead2);
+        hl3 = (TextView) findViewById(R.id.trendingHead3);
+        hl4 = (TextView) findViewById(R.id.trendingHead4);
 
     }
 

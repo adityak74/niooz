@@ -87,7 +87,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         setContentView(R.layout.activity_main);
 
         textView = (TextView) findViewById(R.id.textView);
-        image = (ImageView) findViewById(R.id.imageView);
+        //image = (ImageView) findViewById(R.id.imageView);
         authButton = (LoginButton) findViewById(R.id.fbAuthButton);
         authButton.setReadPermissions(Arrays.asList("public_profile"));
         btnSignIn = (SignInButton) findViewById(R.id.gplusAuthButton);
@@ -109,7 +109,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 .addScope(Plus.SCOPE_PLUS_LOGIN).build();
 
 
-        applyBlur();
+        //applyBlur();
 
         Typeface custom_font = Typeface.createFromAsset(getAssets(),
                 "fonts/segoe-ui.ttf");
@@ -356,7 +356,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private void blur(Bitmap bkg, View view) {
         long startMs = System.currentTimeMillis();
 
-        float radius = 25;
+        float radius = 5;
 
         Bitmap overlay = Bitmap.createBitmap((int) (view.getMeasuredWidth()),
                 (int) (view.getMeasuredHeight()), Bitmap.Config.ARGB_8888);
