@@ -7,7 +7,7 @@
     <ScrollView
         android:id="@+id/home_scrollview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -60,7 +60,7 @@
                     android:textStyle="bold"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="#535353"
-                    android:text="BARACK OBAMA IN INDIA"
+                    android:text=""
                     android:id="@+id/trendingHead1"
                     />
 
@@ -70,7 +70,7 @@
                     android:layout_weight="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="#535353"
-                    android:text="OIL EXPLOSION"
+                    android:text=""
                     android:textStyle="bold"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -84,7 +84,7 @@
                     android:layout_weight="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="#535353"
-                    android:text="SACHIN TENDULKAR"
+                    android:text=""
                     android:textStyle="bold"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -98,7 +98,7 @@
                     android:layout_weight="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="#535353"
-                    android:text="ELEPHANT IN THE ROOM"
+                    android:text=""
                     android:textStyle="bold"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -111,6 +111,7 @@
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>
+
 
 
 </android.support.v4.widget.SwipeRefreshLayout>
