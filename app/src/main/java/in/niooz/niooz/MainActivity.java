@@ -2,6 +2,7 @@ package in.niooz.niooz;
 
     import android.annotation.TargetApi;
     import android.app.Activity;
+    import android.app.ProgressDialog;
     import android.content.Intent;
     import android.content.IntentSender;
     import android.content.pm.PackageInfo;
@@ -45,11 +46,18 @@ import android.view.MenuItem;
     import com.google.android.gms.plus.Plus;
     import com.google.android.gms.plus.model.people.Person;
 
+    import org.apache.http.NameValuePair;
+    import org.apache.http.message.BasicNameValuePair;
+    import org.json.JSONException;
+    import org.json.JSONObject;
+
     import java.io.IOException;
     import java.security.MessageDigest;
     import java.security.NoSuchAlgorithmException;
     import java.security.Signature;
+    import java.util.ArrayList;
     import java.util.Arrays;
+    import java.util.List;
 
 
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -59,6 +67,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 0;
     private static int SPLASH_TIME_OUT = 3000;
+    private static String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
+    private static String TOKEN_VALIDATE_URL = "http://itechnospot.com/temp/validateToken.php";
     private TextView textView;
     private UiLifecycleHelper uiHelper;
     private boolean mIntentInProgress;
@@ -66,9 +76,12 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private boolean mSignInClicked;
     private static final int PROFILE_PIC_SIZE = 400;
     private ConnectionResult mConnectionResult;
-    String email,accessToken;
-    LoginButton authButton;
-    SignInButton btnSignIn;
+    private String email,accessToken;
+    private LoginButton authButton;
+    private SignInButton btnSignIn;
+    private String provider;
+    private String th1,th2,th3,th4;
+    private ProgressDialog pDialog1;
 
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
@@ -149,6 +162,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 
 
+
+
     @Override
     public void onConnectionFailed(ConnectionResult result) {
         if (!result.hasResolution()) {
@@ -226,6 +241,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         //Toast.makeText(this, "User is connected using Google Plus Login!", Toast.LENGTH_LONG).show();
 
         // Get user's information
+        provider = "GooglePlus";
         new GetAccessToken().execute();
 
         updateUI(true);
@@ -284,11 +300,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            Intent i = new Intent(MainActivity.this,HomeActivity.class);
-            i.putExtra("access_token",accessToken);
-            i.putExtra("provider","GooglePlus");
-            startActivity(i);
-            finish();
+            new ValidateAccessToken().execute();
         }
     }
 
@@ -320,17 +332,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         if (state.isOpened()) {
             Log.i(TAG, "Logged in...");
             //Toast.makeText(getApplicationContext(),session.getAccessToken(),Toast.LENGTH_LONG).show();
-
-
             updateUI(true);
-
-            Intent i = new Intent(MainActivity.this,HomeActivity.class);
-            i.putExtra("access_token",session.getAccessToken());
-            i.putExtra("provider","Facebook");
-            startActivity(i);
-            finish();
-
-
+            provider = "Facebook";
+            accessToken = session.getAccessToken();
+            new ValidateAccessToken().execute();
 
         } else if (state.isClosed()) {
             Log.i(TAG, "Logged out...");
@@ -420,5 +425,105 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             btnSignIn.setVisibility(View.VISIBLE);
             authButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    public class ValidateAccessToken extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog1 = new ProgressDialog(MainActivity.this);
+            pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            pDialog1.setMessage("Logging In...");
+            pDialog1.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            ServiceHandler sh = new ServiceHandler();
+            List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
+            nameValuePair.add(new BasicNameValuePair("access_token", accessToken));
+            nameValuePair.add(new BasicNameValuePair("provider", provider));
+            String resp = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
+
+            if(resp.equals("OK"))
+            {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Successfully Logged In",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Login Failed",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if(pDialog1.isShowing()){
+                pDialog1.dismiss();
+            }
+            new LoadTrendingNews().execute();
+        }
+    }
+
+    public class LoadTrendingNews extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog1 = new ProgressDialog(MainActivity.this);
+            pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            pDialog1.setMessage("Cooking News for You...");
+            pDialog1.show();
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            ServiceHandler sh = new ServiceHandler();
+            final String respStr = sh.makeServiceCall(TRENDING_URL, ServiceHandler.POST);
+            try {
+
+                //Log.d("Response: ", "> " + res);
+                JSONObject jsonObject = new JSONObject(respStr);
+                th1 = jsonObject.getString("t1");
+                th2 = jsonObject.getString("t2");
+                th3 = jsonObject.getString("t3");
+                th4 = jsonObject.getString("t4");
+
+
+            }catch (JSONException ex){
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if(pDialog1.isShowing()){
+                pDialog1.dismiss();
+            }
+            Intent i = new Intent(MainActivity.this,HomeActivity.class);
+            i.putExtra("th1",th1);
+            i.putExtra("th2",th2);
+            i.putExtra("th3",th3);
+            i.putExtra("th4",th4);
+            startActivity(i);
+            finish();
+        }
+
+
     }
 }

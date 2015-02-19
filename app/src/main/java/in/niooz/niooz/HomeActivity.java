@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,9 +30,8 @@ public class HomeActivity extends ActionBarActivity {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView hl1,hl2,hl3,hl4;
-    private static String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
-    private static String TOKEN_VALIDATE_URL = "http://itechnospot.com/temp/validateToken.php";
-    private ProgressDialog pDialog1;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +40,6 @@ public class HomeActivity extends ActionBarActivity {
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
-        Bundle extras = getIntent().getExtras();
-        if(extras!=null){
-            String accessToken = extras.getString("access_token");
-            String provider = extras.getString("provider");
-            String res = "AccessToken : " + accessToken +"\n Provider : " + provider;
-            Log.d("ACCESS_TOKEN,PROVIDER",res);
-        }
-
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -55,7 +47,6 @@ public class HomeActivity extends ActionBarActivity {
             public void onRefresh() {
                 mSwipeRefreshLayout.setRefreshing(true);
                 Log.d("Swipe", "Refreshing Number");
-                new LoadTrendingNews().execute();
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -67,114 +58,36 @@ public class HomeActivity extends ActionBarActivity {
         hl3 = (TextView) findViewById(R.id.trendingHead3);
         hl4 = (TextView) findViewById(R.id.trendingHead4);
 
+        hl1.setText(getIntent().getExtras().getString("th1"));
+        hl2.setText(getIntent().getExtras().getString("th2"));
+        hl3.setText(getIntent().getExtras().getString("th3"));
+        hl4.setText(getIntent().getExtras().getString("th4"));
 
-        new ValidateAccessToken().execute();
+        final ListView listview = (ListView) findViewById(R.id.headList);
+        String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
+                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
+                "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
+                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
+                "Android", "iPhone", "WindowsMobile" };
 
-    }
-
-    public class ValidateAccessToken extends AsyncTask<Void,Void,Void>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog1 = new ProgressDialog(HomeActivity.this);
-            pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            pDialog1.setMessage("Logging In...");
-            pDialog1.show();
+        final ArrayList<String> list = new ArrayList<String>();
+        for (int i = 0; i < values.length; ++i) {
+            list.add(values[i]);
         }
+        final ArrayAdapter adapter = new ArrayAdapter(this,
+                android.R.layout.simple_list_item_1, list);
+        listview.setAdapter(adapter);
 
-        @Override
-        protected Void doInBackground(Void... params) {
 
-            ServiceHandler sh = new ServiceHandler();
-            List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
-            nameValuePair.add(new BasicNameValuePair("access_token", "myToken"));
-            nameValuePair.add(new BasicNameValuePair("provider", "facebook"));
-            String resp = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
 
-            if(resp.equals("OK"))
-            {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),"Successfully Logged In",Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            else {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),"Login Failed",Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
 
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            if(pDialog1.isShowing()){
-                pDialog1.dismiss();
-            }
-            new LoadTrendingNews().execute();
-        }
     }
 
 
 
-    public class LoadTrendingNews extends AsyncTask<Void,Void,Void>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pDialog1 = new ProgressDialog(HomeActivity.this);
-            pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            pDialog1.setMessage("Cooking News for You...");
-            pDialog1.show();
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            ServiceHandler sh = new ServiceHandler();
-            final String respStr = sh.makeServiceCall(TRENDING_URL, ServiceHandler.POST);
-            try {
-
-                //Log.d("Response: ", "> " + res);
-                JSONObject jsonObject = new JSONObject(respStr);
-                final String th1 = jsonObject.getString("t1");
-                final String th2 = jsonObject.getString("t2");
-                final String th3 = jsonObject.getString("t3");
-                final String th4 = jsonObject.getString("t4");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        hl1.setText(th1);
-                        hl2.setText(th2);
-                        hl3.setText(th3);
-                        hl4.setText(th4);
-
-                    }
-                });
-
-            }catch (JSONException ex){
-
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            if(pDialog1.isShowing()){
-                pDialog1.dismiss();
-            }
-        }
 
 
-    }
+
 
 
     @Override
