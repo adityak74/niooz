@@ -15,9 +15,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class HomeActivity extends ActionBarActivity {
@@ -25,6 +30,7 @@ public class HomeActivity extends ActionBarActivity {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView hl1,hl2,hl3,hl4;
     private static String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
+    private static String TOKEN_VALIDATE_URL = "http://itechnospot.com/temp/validateToken.php";
     private ProgressDialog pDialog1;
 
     @Override
@@ -62,14 +68,70 @@ public class HomeActivity extends ActionBarActivity {
         hl4 = (TextView) findViewById(R.id.trendingHead4);
 
 
+        new ValidateAccessToken().execute();
 
-        new LoadTrendingNews().execute();
     }
+
+    public class ValidateAccessToken extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog1 = new ProgressDialog(HomeActivity.this);
+            pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            pDialog1.setMessage("Logging In...");
+            pDialog1.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            ServiceHandler sh = new ServiceHandler();
+            List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
+            nameValuePair.add(new BasicNameValuePair("access_token", "myToken"));
+            nameValuePair.add(new BasicNameValuePair("provider", "facebook"));
+            String resp = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
+
+            if(resp.equals("OK"))
+            {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Successfully Logged In",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Login Failed",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if(pDialog1.isShowing()){
+                pDialog1.dismiss();
+            }
+            new LoadTrendingNews().execute();
+        }
+    }
+
+
 
     public class LoadTrendingNews extends AsyncTask<Void,Void,Void>{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            pDialog1 = new ProgressDialog(HomeActivity.this);
+            pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            pDialog1.setMessage("Cooking News for You...");
+            pDialog1.show();
 
         }
 
@@ -106,7 +168,9 @@ public class HomeActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-
+            if(pDialog1.isShowing()){
+                pDialog1.dismiss();
+            }
         }
 
 
