@@ -67,8 +67,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private String TAG = "MainActivity";
     private static final int RC_SIGN_IN = 0;
     private static int SPLASH_TIME_OUT = 3000;
-    private static String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
-    private static String TOKEN_VALIDATE_URL = "http://itechnospot.com/temp/validateToken.php";
+    private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
+    private String TOKEN_VALIDATE_URL = "http://itechnospot.com/temp/validateToken.php";
     private TextView textView;
     private UiLifecycleHelper uiHelper;
     private boolean mIntentInProgress;
@@ -319,7 +319,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     public void onDestroy() {
         super.onDestroy();
         uiHelper.onDestroy();
+        finish();
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -441,9 +443,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         protected Void doInBackground(Void... params) {
 
             ServiceHandler sh = new ServiceHandler();
-            List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
+            List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(1);
             nameValuePair.add(new BasicNameValuePair("access_token", accessToken));
             nameValuePair.add(new BasicNameValuePair("provider", provider));
+            //String url = TOKEN_VALIDATE_URL + accessToken;
             String resp = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
 
             if(resp.equals("OK"))
@@ -521,9 +524,12 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             i.putExtra("th3",th3);
             i.putExtra("th4",th4);
             startActivity(i);
-            finish();
+            overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
         }
 
 
+
     }
+
+
 }

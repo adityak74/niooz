@@ -9,6 +9,7 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_facebook_login">FBActivity</string>
     <string name="fb_app_id">770665146354476</string>
+    <string name="title_activity_splash_screen">splash_screen</string>
 
 
 </resources>

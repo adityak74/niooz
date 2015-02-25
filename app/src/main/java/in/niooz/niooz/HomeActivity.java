@@ -2,6 +2,8 @@ package in.niooz.niooz;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -11,7 +13,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,11 +32,22 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.niooz.niooz.adapter.NewsAdapter;
+import in.niooz.niooz.model.News;
+
 
 public class HomeActivity extends ActionBarActivity {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView hl1,hl2,hl3,hl4;
+    ImageButton imageButton;
+
+    //private List<News> newsList = new ArrayList<News>();
+    //private ListView listView;
+    //private NewsAdapter adapter;
+    private LinearLayout newsList;
+
+    //private String BASE_URL = "http://172.16.40.27/users/login";
 
 
 
@@ -39,6 +57,7 @@ public class HomeActivity extends ActionBarActivity {
         setContentView(R.layout.activity_home);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+
 
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
 
@@ -51,6 +70,7 @@ public class HomeActivity extends ActionBarActivity {
             }
         });
 
+        mSwipeRefreshLayout.canChildScrollUp();
 
 
         hl1 = (TextView) findViewById(R.id.trendingHead1);
@@ -63,7 +83,20 @@ public class HomeActivity extends ActionBarActivity {
         hl3.setText(getIntent().getExtras().getString("th3"));
         hl4.setText(getIntent().getExtras().getString("th4"));
 
-        final ListView listview = (ListView) findViewById(R.id.headList);
+
+        imageButton = (ImageButton) findViewById(R.id.imgBt);
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageButton.setColorFilter(Color.argb(255,255,235,59));
+            }
+        });
+
+
+
+
+        /*
+        listView = (ListView) findViewById(R.id.newsList);
         String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
                 "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
                 "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
@@ -74,10 +107,35 @@ public class HomeActivity extends ActionBarActivity {
         for (int i = 0; i < values.length; ++i) {
             list.add(values[i]);
         }
+
         final ArrayAdapter adapter = new ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);
+        listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(),"Clicked : " + position,Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if(firstVisibleItem==0){
+                    mSwipeRefreshLayout.setEnabled(true);
+                }
+                else {
+                    mSwipeRefreshLayout.setEnabled(false);
+                }
+            }
+        });
+        */
 
 
 
