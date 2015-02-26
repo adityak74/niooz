@@ -5,6 +5,7 @@ package in.niooz.niooz;
     import android.app.ProgressDialog;
     import android.content.Intent;
     import android.content.IntentSender;
+    import android.content.SharedPreferences;
     import android.content.pm.PackageInfo;
     import android.content.pm.PackageManager;
     import android.graphics.Bitmap;
@@ -82,6 +83,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private String provider;
     private String th1,th2,th3,th4;
     private ProgressDialog pDialog1;
+    private int sessioncount = 1;
 
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
@@ -217,15 +219,18 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == RC_SIGN_IN) {
-            if (resultCode != RESULT_OK) {
-                mSignInClicked = false;
-            }
+        if(mSignInClicked==true) {
+            if (requestCode == RC_SIGN_IN) {
+                if (resultCode != RESULT_OK) {
+                    if (mSignInClicked == true)
+                        mSignInClicked = false;
+                }
 
-            mIntentInProgress = false;
+                mIntentInProgress = false;
 
-            if (!mGoogleApiClient.isConnecting()) {
-                mGoogleApiClient.connect();
+                if (!mGoogleApiClient.isConnecting()) {
+                    mGoogleApiClient.connect();
+                }
             }
         }
 
@@ -237,21 +242,18 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     @Override
     public void onConnected(Bundle arg0) {
+        if(mSignInClicked==true) {
+            Log.d("Connected GPLUS","Getting Token");
+            new GetAccessToken().execute();
+        }
         mSignInClicked = false;
         //Toast.makeText(this, "User is connected using Google Plus Login!", Toast.LENGTH_LONG).show();
-
         // Get user's information
         provider = "GooglePlus";
-        new GetAccessToken().execute();
-
         updateUI(true);
-
-
         // Update the UI after signin
         //updateUI(true);
-
         //pDialog.dismiss();
-
     }
 
     public class GetAccessToken extends AsyncTask<Void,Void,Void> {
@@ -275,7 +277,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                         }
                     });
 
-                    Log.e(TAG, "Name: " + personName + ", plusProfile: "
+                    Log.d(TAG, "Name: " + personName + ", plusProfile: "
                             + personGooglePlusProfile + ", email: " + email
                             + ", Image: " + personPhotoUrl);
 
@@ -301,6 +303,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             new ValidateAccessToken().execute();
+            Log.d("Register Status","GooglePlus GetAccessToken Called Validate");
         }
     }
 
@@ -331,15 +334,23 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+
         if (state.isOpened()) {
-            Log.i(TAG, "Logged in...");
+
             //Toast.makeText(getApplicationContext(),session.getAccessToken(),Toast.LENGTH_LONG).show();
             updateUI(true);
             provider = "Facebook";
             accessToken = session.getAccessToken();
-            new ValidateAccessToken().execute();
+            if(sessioncount==1) {
+                Log.d("Register Status", "Logged in...");
+                new ValidateAccessToken().execute();
+                sessioncount=0;
+                Log.d("Register Status","FB session activity called validate token and sessioncount = " + sessioncount);
+            }
+
 
         } else if (state.isClosed()) {
+            sessioncount=1;
             Log.i(TAG, "Logged out...");
             updateUI(false);
         }
@@ -518,6 +529,20 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             if(pDialog1.isShowing()){
                 pDialog1.dismiss();
             }
+
+
+            try{
+                SharedPreferences pref;
+                pref = getSharedPreferences("niooz",MODE_PRIVATE);
+                SharedPreferences.Editor edit = pref.edit();
+                edit.putString("register","true");
+                edit.commit();
+                Log.d("Register Status","Registered and Saved");
+            }catch (Exception ex){
+                Log.d("Register Status","Registered but not saved SharedPrefs Error");
+            }
+
+
             Intent i = new Intent(MainActivity.this,HomeActivity.class);
             i.putExtra("th1",th1);
             i.putExtra("th2",th2);

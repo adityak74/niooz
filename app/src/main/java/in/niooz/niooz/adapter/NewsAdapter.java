@@ -32,6 +32,7 @@ public class NewsAdapter extends BaseAdapter {
     public NewsAdapter(Activity activity,List<News> newsItems){
         this.activity = activity;
         this.newsItems = newsItems;
+        layoutInflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
 
@@ -76,6 +77,8 @@ public class NewsAdapter extends BaseAdapter {
         headline.setText(n.getHeadline());
 
         likes.setText(n.getLikes());
+
+
 
         return convertView;
     }

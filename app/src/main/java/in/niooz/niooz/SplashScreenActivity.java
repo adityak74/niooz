@@ -2,10 +2,12 @@ package in.niooz.niooz;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -19,6 +21,7 @@ public class SplashScreenActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
+
         textView = (TextView) findViewById(R.id.textView);
         Typeface custom_font = Typeface.createFromAsset(getAssets(),
                 "fonts/segoe-ui.ttf");
@@ -26,20 +29,29 @@ public class SplashScreenActivity extends Activity {
 
         new Handler().postDelayed(new Runnable() {
 
-            /*
-             * Showing splash screen with a timer. This will be useful when you
-             * want to show case your app logo / company
-             */
-
             @Override
             public void run() {
                 // This method will be executed once the timer is over
                 // Start your app main activity
-                Intent i = new Intent(SplashScreenActivity.this, MainActivity.class);
-                startActivity(i);
-                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
-                // close this activity
-                finish();
+                SharedPreferences pref;
+                pref = getSharedPreferences("niooz", MODE_PRIVATE);
+                try {
+                    String getStatus = pref.getString("register", null);
+                    Log.d("Register Status",getStatus);
+                    if(getStatus.equals("true")){
+                        Intent i = new Intent(SplashScreenActivity.this, HomeActivity.class);
+                        startActivity(i);
+                        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        finish();
+                    }
+                }catch (Exception ex){
+                    Log.d("Register Status","Not Registered Moving to Registration");
+                    Intent i = new Intent(SplashScreenActivity.this, MainActivity.class);
+                    startActivity(i);
+                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                    // close this activity
+                    finish();
+                }
             }
         }, SPLASH_TIME_OUT);
 

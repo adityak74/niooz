@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:background="@android:drawable/dialog_holo_light_frame"
+    >
+
+    <ImageView
+        android:id="@+id/newsBackgroundImage"
+        android:layout_width="fill_parent"
+        android:src="@drawable/ic_launcher"
+        android:scaleType="fitXY"
+        android:layout_height="200dp" />
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        >
+
+        <ImageView
+            android:id="@+id/glassLayer"
+            android:layout_width="fill_parent"
+            android:src="#CC000000"
+            android:scaleType="fitXY"
+            android:layout_height="200dp" />
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            >
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:layout_weight="2.2"
+                >
+                <ImageView
+                    android:id="@+id/triangleImg"
+                    android:layout_width="match_parent"
+                    android:src="@drawable/trianglearrow_left_red"
+                    android:scaleType="fitXY"
+                    android:layout_height="match_parent" />
+
+                <ImageButton
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@mipmap/ic_star_icon"
+                    android:tint="#00000000"
+                    android:minHeight="80dp"
+                    android:minWidth="80dp"
+                    android:background="#00000000"
+                    android:paddingEnd="25dp"
+                    android:paddingRight="25dp"
+                    android:scaleType="centerCrop"
+                    android:id="@+id/image"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" >
+
+                </ImageButton>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="27"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="20dp"
+                    android:paddingRight="20dp"
+                    android:id="@+id/textView"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_weight="0.8"
+                >
+
+                <EditText
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:inputType="textMultiLine|none"
+                    android:textAlignment="center"
+                    android:textAllCaps="true"
+                    android:textStyle="italic"
+                    android:clickable="true"
+                    android:textColor="#ffffff"
+                    android:background="#00000000"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:ems="10"
+                    android:text="CHRIS HENRY GAYLE HITS A DOUBLE TON"
+                    android:id="@+id/newsHeadLine"
+                    />
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

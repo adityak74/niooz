@@ -2,6 +2,7 @@ package in.niooz.niooz;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -11,6 +12,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nirhart.parallaxscroll.views.ParallaxListView;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -40,8 +44,8 @@ public class HomeActivity extends ActionBarActivity {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView hl1,hl2,hl3,hl4;
-    ImageButton imageButton;
-
+    private ImageButton imageButton;
+    private ParallaxListView newsListView;
     //private List<News> newsList = new ArrayList<News>();
     //private ListView listView;
     //private NewsAdapter adapter;
@@ -56,6 +60,7 @@ public class HomeActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        newsListView = (ParallaxListView) findViewById(R.id.news_list_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
 
 
@@ -77,12 +82,12 @@ public class HomeActivity extends ActionBarActivity {
         hl2 = (TextView) findViewById(R.id.trendingHead2);
         hl3 = (TextView) findViewById(R.id.trendingHead3);
         hl4 = (TextView) findViewById(R.id.trendingHead4);
-
+        /*
         hl1.setText(getIntent().getExtras().getString("th1"));
         hl2.setText(getIntent().getExtras().getString("th2"));
         hl3.setText(getIntent().getExtras().getString("th3"));
         hl4.setText(getIntent().getExtras().getString("th4"));
-
+        */
 
         imageButton = (ImageButton) findViewById(R.id.imgBt);
         imageButton.setOnClickListener(new View.OnClickListener() {
@@ -93,10 +98,17 @@ public class HomeActivity extends ActionBarActivity {
         });
 
 
+        LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
+                (Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.news_home_header,null);
+
+        newsListView.addParallaxedHeaderView(v);
 
 
         /*
         listView = (ListView) findViewById(R.id.newsList);
+        */
+
         String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
                 "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
                 "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
@@ -110,15 +122,15 @@ public class HomeActivity extends ActionBarActivity {
 
         final ArrayAdapter adapter = new ArrayAdapter(this,
                 android.R.layout.simple_list_item_1, list);
-        listView.setAdapter(adapter);
+        newsListView.setAdapter(adapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Toast.makeText(getApplicationContext(),"Clicked : " + position,Toast.LENGTH_SHORT).show();
             }
         });
-
+        /*
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
