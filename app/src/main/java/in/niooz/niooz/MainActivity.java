@@ -23,14 +23,20 @@ package in.niooz.niooz;
     import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+    import android.view.MotionEvent;
     import android.view.View;
     import android.view.ViewGroup;
     import android.view.ViewTreeObserver;
+    import android.view.animation.AccelerateInterpolator;
+    import android.view.animation.Animation;
+    import android.view.animation.AnimationUtils;
+    import android.view.animation.TranslateAnimation;
     import android.widget.ImageView;
     import android.widget.LinearLayout;
     import android.widget.RelativeLayout;
     import android.widget.TextView;
     import android.widget.Toast;
+    import android.widget.ViewFlipper;
 
     import com.facebook.Session;
     import com.facebook.SessionState;
@@ -84,6 +90,10 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private String th1,th2,th3,th4;
     private ProgressDialog pDialog1;
     private int sessioncount = 1;
+    private ViewFlipper viewFlipper;
+    private float lastX;
+    Animation slide_in_left, slide_out_right;
+
 
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
@@ -101,7 +111,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
         setContentView(R.layout.activity_main);
 
-        textView = (TextView) findViewById(R.id.textView);
+        //textView = (TextView) findViewById(R.id.textView);
         //image = (ImageView) findViewById(R.id.imageView);
         authButton = (LoginButton) findViewById(R.id.fbAuthButton);
         authButton.setReadPermissions(Arrays.asList("public_profile"));
@@ -128,7 +138,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
         Typeface custom_font = Typeface.createFromAsset(getAssets(),
                 "fonts/segoe-ui.ttf");
-        textView.setTypeface(custom_font);
+        //textView.setTypeface(custom_font);
 
         /*
         new Handler().postDelayed(new Runnable() {
@@ -142,6 +152,94 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             }
         },SPLASH_TIME_OUT);
         */
+        viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
+    }
+
+    private Animation inFromRightAnimation() {
+
+        Animation inFromRight = new TranslateAnimation(
+                Animation.RELATIVE_TO_PARENT,  +1.0f, Animation.RELATIVE_TO_PARENT,  0.0f,
+                Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
+        );
+        inFromRight.setDuration(500);
+        inFromRight.setInterpolator(new AccelerateInterpolator());
+        return inFromRight;
+    }
+    private Animation outToLeftAnimation() {
+        Animation outtoLeft = new TranslateAnimation(
+                Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,  -1.0f,
+                Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
+        );
+        outtoLeft.setDuration(500);
+        outtoLeft.setInterpolator(new AccelerateInterpolator());
+        return outtoLeft;
+    }
+
+    private Animation inFromLeftAnimation() {
+        Animation inFromLeft = new TranslateAnimation(
+                Animation.RELATIVE_TO_PARENT,  -1.0f, Animation.RELATIVE_TO_PARENT,  0.0f,
+                Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
+        );
+        inFromLeft.setDuration(500);
+        inFromLeft.setInterpolator(new AccelerateInterpolator());
+        return inFromLeft;
+    }
+    private Animation outToRightAnimation() {
+        Animation outtoRight = new TranslateAnimation(
+                Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,  +1.0f,
+                Animation.RELATIVE_TO_PARENT,  0.0f, Animation.RELATIVE_TO_PARENT,   0.0f
+        );
+        outtoRight.setDuration(500);
+        outtoRight.setInterpolator(new AccelerateInterpolator());
+        return outtoRight;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent touchevent) {
+        switch (touchevent.getAction())
+        {
+            // when user first touches the screen to swap
+            case MotionEvent.ACTION_DOWN:
+            {
+                lastX = touchevent.getX();
+                break;
+            }
+            case MotionEvent.ACTION_UP:
+            {
+                float currentX = touchevent.getX();
+
+                // if left to right swipe on screen
+                if (lastX < currentX)
+                {
+                    // If no more View/Child to flip
+                    if (viewFlipper.getDisplayedChild() == 0)
+                        break;
+
+                    // set the required Animation type to ViewFlipper
+                    // The Next screen will come in form Left and current Screen will go OUT from Right
+
+                    viewFlipper.setInAnimation(inFromLeftAnimation());
+                    viewFlipper.setOutAnimation(outToRightAnimation());
+                    // Show the next Screen
+                    viewFlipper.showNext();
+                }
+
+                // if right to left swipe on screen
+                if (lastX > currentX)
+                {
+                    if (viewFlipper.getDisplayedChild() == 1)
+                        break;
+                    // set the required Animation type to ViewFlipper
+                    // The Next screen will come in form Right and current Screen will go OUT from Left
+                    viewFlipper.setInAnimation(inFromRightAnimation());
+                    viewFlipper.setOutAnimation(outToLeftAnimation());
+                    // Show The Previous Screen
+                    viewFlipper.showPrevious();
+                }
+                break;
+            }
+        }
+        return false;
 
     }
 

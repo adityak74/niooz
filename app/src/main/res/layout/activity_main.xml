@@ -5,36 +5,89 @@
 
     <ImageView
         android:layout_width="fill_parent"
-        android:src="@drawable/splash"
+        android:background="#A82400"
         android:scaleType="centerCrop"
         android:layout_height="fill_parent" />
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="#AA000000"
+        android:layout_above="@+id/gplusAuthButton"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="80sp"
-            android:text="Niooz"
-            android:paddingTop="20dp"
-            android:paddingBottom="20dp"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:id="@+id/textView"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+        <ViewFlipper
+            android:id="@+id/view_flipper"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="0dip" >
+
+            <!--  The child Views/Layout to flip -->
+
+            <!--  Layout 1 for 1st Screen -->
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:background="#883949AB"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:text="Welcome To Niooz"
+                    android:textColor="#ccc"
+                    android:textSize="25dp"
+                    android:textStyle="bold" >
+                </TextView>
+
+                <ImageView
+                    android:layout_marginTop="15dp"
+                    android:id="@+id/introImage0"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/ic_launcher" />
+
+            </LinearLayout>
+
+            <!--  Layout 2 for 2nd Screen -->
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:background="#AA000000"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_marginTop="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Post Your News - Make it Trend"
+                    android:textColor="#191975"
+                    android:textSize="25dp"
+                    android:textStyle="bold" >
+                </TextView>
+
+                <ImageView
+                    android:layout_marginTop="15dp"
+                    android:id="@+id/introImage1"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/trianglearrow_left_red" />
+
+            </LinearLayout>
+
+
+        </ViewFlipper>
     </RelativeLayout>
 
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/gplusAuthButton"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_above="@+id/fbAuthButton"
         />
 
@@ -42,7 +95,7 @@
     <com.facebook.widget.LoginButton
         android:id="@+id/fbAuthButton"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_gravity="center_horizontal"
         android:layout_alignParentBottom="true"
         />
