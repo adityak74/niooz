@@ -16,7 +16,8 @@ public class News {
 
     }
 
-    public News(String headline,String headlineBackgroundURL,int likes,int views,int articlesSubmitted,int noOfFollowers){
+    public News(int id,String headline,String headlineBackgroundURL,int likes,int views,int articlesSubmitted,int noOfFollowers){
+        this.id = id;
         this.headline = headline;
         this.headlineBackgroundURL = headlineBackgroundURL;
         this.likes = likes;
@@ -28,7 +29,7 @@ public class News {
 
     public int getId(){ return id;}
 
-    public void setId(){ this.id = id;}
+    public void setId(int id){ this.id = id;}
 
     public String getHeadline(){
         return headline;

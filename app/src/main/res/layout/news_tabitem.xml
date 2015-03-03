@@ -6,14 +6,14 @@
     android:background="@android:drawable/dialog_holo_light_frame"
     >
 
-    <ImageView
+    <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/newsBackgroundImage"
         android:layout_width="fill_parent"
-        android:src="@drawable/ic_launcher"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:layout_height="200dp" />
 
     <RelativeLayout
+        android:id="@+id/blurLayout"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
         <ImageView
             android:id="@+id/glassLayer"
             android:layout_width="fill_parent"
-            android:src="#CC000000"
+            android:src="#AA000000"
             android:scaleType="fitXY"
             android:layout_height="200dp" />
 
@@ -74,14 +74,16 @@
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="27"
                     android:paddingTop="5dp"
-                    android:paddingEnd="20dp"
-                    android:paddingRight="20dp"
-                    android:id="@+id/textView"
+                    android:paddingEnd="25dp"
+                    android:paddingRight="25dp"
+                    android:id="@+id/likes"
                     android:layout_centerVertical="true"
                     android:layout_centerHorizontal="true" />
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/headlineLayout"
+                android:clickable="true"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:paddingLeft="10dp"
@@ -94,10 +96,12 @@
                 <EditText
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:inputType="textMultiLine|none"
+                    android:textIsSelectable="false"
                     android:textAlignment="center"
+                    android:editable="false"
                     android:textAllCaps="true"
                     android:textStyle="italic"
+                    android:inputType="none"
                     android:clickable="true"
                     android:textColor="#ffffff"
                     android:background="#00000000"
@@ -105,6 +109,13 @@
                     android:ems="10"
                     android:text="CHRIS HENRY GAYLE HITS A DOUBLE TON"
                     android:id="@+id/newsHeadLine"
+                    />
+
+                <View
+                    android:id="@+id/headlineClickView"
+                    android:layout_width="fill_parent"
+                    android:clickable="true"
+                    android:layout_height="fill_parent"
                     />
 
 

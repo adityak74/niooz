@@ -221,20 +221,20 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                     viewFlipper.setInAnimation(inFromLeftAnimation());
                     viewFlipper.setOutAnimation(outToRightAnimation());
                     // Show the next Screen
-                    viewFlipper.showNext();
+                    viewFlipper.showPrevious();
                 }
 
                 // if right to left swipe on screen
                 if (lastX > currentX)
                 {
-                    if (viewFlipper.getDisplayedChild() == 1)
+                    if (viewFlipper.getDisplayedChild() == 3)
                         break;
                     // set the required Animation type to ViewFlipper
                     // The Next screen will come in form Right and current Screen will go OUT from Left
                     viewFlipper.setInAnimation(inFromRightAnimation());
                     viewFlipper.setOutAnimation(outToLeftAnimation());
                     // Show The Previous Screen
-                    viewFlipper.showPrevious();
+                    viewFlipper.showNext();
                 }
                 break;
             }
@@ -472,7 +472,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private void blur(Bitmap bkg, View view) {
         long startMs = System.currentTimeMillis();
 
-        float radius = 5;
+        float radius = 5f;
 
         Bitmap overlay = Bitmap.createBitmap((int) (view.getMeasuredWidth()),
                 (int) (view.getMeasuredHeight()), Bitmap.Config.ARGB_8888);

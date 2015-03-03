@@ -1,4 +1,4 @@
-package in.niooz.niooz.adapter;
+package in.niooz.niooz.app;
 
 import android.app.Application;
 import android.text.TextUtils;

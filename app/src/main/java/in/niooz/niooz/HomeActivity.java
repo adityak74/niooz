@@ -4,10 +4,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.Typeface;
-import android.os.AsyncTask;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -16,19 +12,15 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +28,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import in.niooz.niooz.app.AppController;
 import in.niooz.niooz.adapter.NewsAdapter;
 import in.niooz.niooz.model.News;
 
@@ -44,14 +37,13 @@ public class HomeActivity extends ActionBarActivity {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView hl1,hl2,hl3,hl4;
+    private ProgressDialog pDialog;
     private ImageButton imageButton;
     private ParallaxListView newsListView;
-    //private List<News> newsList = new ArrayList<News>();
-    //private ListView listView;
-    //private NewsAdapter adapter;
-    private LinearLayout newsList;
-
-    //private String BASE_URL = "http://172.16.40.27/users/login";
+    private List<News> newsList = new ArrayList<News>();
+    private NewsAdapter adapter;
+    private String TAG = "HomeActivity";
+    private String BASE_URL = "http://www.itechnospot.com/api/news.json";
 
 
 
@@ -60,12 +52,8 @@ public class HomeActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        newsListView = (ParallaxListView) findViewById(R.id.news_list_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
-
-
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
-
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -74,20 +62,13 @@ public class HomeActivity extends ActionBarActivity {
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
-
         mSwipeRefreshLayout.canChildScrollUp();
 
 
-        hl1 = (TextView) findViewById(R.id.trendingHead1);
-        hl2 = (TextView) findViewById(R.id.trendingHead2);
-        hl3 = (TextView) findViewById(R.id.trendingHead3);
-        hl4 = (TextView) findViewById(R.id.trendingHead4);
-        /*
-        hl1.setText(getIntent().getExtras().getString("th1"));
-        hl2.setText(getIntent().getExtras().getString("th2"));
-        hl3.setText(getIntent().getExtras().getString("th3"));
-        hl4.setText(getIntent().getExtras().getString("th4"));
-        */
+
+
+        //Log.d("Home",getIntent().getExtras().getString("th1"));
+
 
         imageButton = (ImageButton) findViewById(R.id.imgBt);
         imageButton.setOnClickListener(new View.OnClickListener() {
@@ -102,63 +83,91 @@ public class HomeActivity extends ActionBarActivity {
                 (Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.news_home_header,null);
 
+        hl1 = (TextView) v.findViewById(R.id.trendingHead1);
+        hl2 = (TextView) v.findViewById(R.id.trendingHead2);
+        hl3 = (TextView) v.findViewById(R.id.trendingHead3);
+        hl4 = (TextView) v.findViewById(R.id.trendingHead4);
+
+        hl1.setText(getIntent().getExtras().getString("th1"));
+        hl2.setText(getIntent().getExtras().getString("th2"));
+        hl3.setText(getIntent().getExtras().getString("th3"));
+        hl4.setText(getIntent().getExtras().getString("th4"));
+
+
+        newsListView = (ParallaxListView) findViewById(R.id.news_list_view);
         newsListView.addParallaxedHeaderView(v);
-
-
-        /*
-        listView = (ListView) findViewById(R.id.newsList);
-        */
-
-        String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
-                "Android", "iPhone", "WindowsMobile" };
-
-        final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < values.length; ++i) {
-            list.add(values[i]);
-        }
-
-        final ArrayAdapter adapter = new ArrayAdapter(this,
-                android.R.layout.simple_list_item_1, list);
+        adapter = new NewsAdapter(this,newsList);
         newsListView.setAdapter(adapter);
 
-        newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+        pDialog = new ProgressDialog(getActivity());
+        // Showing progress dialog before making http request
+        pDialog.setMessage("Loading...");
+        pDialog.show();
+
+        JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d(TAG, response.toString());
+                        hidePDialog();
+
+                        // Parsing json
+                        for (int i = 0; i < response.length(); i++) {
+                            try {
+
+                                JSONObject obj = response.getJSONObject(i);
+                                News news = new News();
+                                news.setId(Integer.parseInt(obj.getString("id")));
+                                news.setHeadlineBackgroundURL(obj.getString("headlineBackURL"));
+                                news.setHeadline(obj.getString("headline"));
+                                news.setLikes(obj.getInt("likes"));
+                                news.setViews(obj.getInt("views"));
+                                news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
+                                news.setNoOfFollowers(obj.getInt("noOfFollowers"));
+
+                                newsList.add(news);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        // notifying list adapter about data changes
+                        // so that it renders the list view with updated data
+                        adapter.notifyDataSetChanged();
+                    }
+                }, new Response.ErrorListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(),"Clicked : " + position,Toast.LENGTH_SHORT).show();
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
+                hidePDialog();
+
             }
         });
-        /*
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if(firstVisibleItem==0){
-                    mSwipeRefreshLayout.setEnabled(true);
-                }
-                else {
-                    mSwipeRefreshLayout.setEnabled(false);
-                }
-            }
-        });
-        */
 
 
+        AppController.getInstance().addToRequestQueue(newsReq);
 
     }
 
+    public Activity getActivity(){
+        return this;
+    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        hidePDialog();
+    }
 
-
-
-
-
+    private void hidePDialog() {
+        if (pDialog != null) {
+            pDialog.dismiss();
+            pDialog = null;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

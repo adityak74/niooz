@@ -16,7 +16,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true">
 
-        <ViewFlipper
+        <in.niooz.niooz.AViewFlipper
             android:id="@+id/view_flipper"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -29,7 +29,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center"
-                android:background="#883949AB"
+                android:background="#AA000000"
                 android:orientation="vertical" >
 
                 <TextView
@@ -38,6 +38,7 @@
                     android:layout_marginTop="15dp"
                     android:text="Welcome To Niooz"
                     android:textColor="#ccc"
+                    android:padding="10dp"
                     android:textSize="25dp"
                     android:textStyle="bold" >
                 </TextView>
@@ -57,16 +58,18 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:gravity="center"
-                android:background="#AA000000"
+                android:background="#2196F3"
                 android:orientation="vertical" >
 
                 <TextView
                     android:layout_marginTop="15dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Post Your News - Make it Trend"
+                    android:textAlignment="center"
+                    android:text="Post Your News \n Make it Trend"
                     android:textColor="#191975"
                     android:textSize="25dp"
+                    android:padding="10dp"
                     android:textStyle="bold" >
                 </TextView>
 
@@ -79,8 +82,66 @@
 
             </LinearLayout>
 
+            <!--  Layout 3 for 3rd Screen -->
 
-        </ViewFlipper>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:background="#FF5722"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_marginTop="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Create your News \n Set your trend"
+                    android:textColor="#191975"
+                    android:textSize="25dp"
+                    android:padding="10dp"
+                    android:textStyle="bold" >
+                </TextView>
+
+                <ImageView
+                    android:layout_marginTop="15dp"
+                    android:id="@+id/introImage2"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/trianglearrow_left_red" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:background="#4CAF50"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_marginTop="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Share it\nTrend Yourself"
+                    android:textColor="#191975"
+                    android:textSize="25dp"
+                    android:padding="10dp"
+                    android:textStyle="bold" >
+                </TextView>
+
+                <ImageView
+                    android:layout_marginTop="15dp"
+                    android:id="@+id/introImage3"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/trianglearrow_left_red" />
+
+            </LinearLayout>
+
+
+        </in.niooz.niooz.AViewFlipper>
     </RelativeLayout>
 
 
