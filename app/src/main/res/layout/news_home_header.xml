@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/logo"
                 android:padding="5dp"
-                android:src="@drawable/elephant_icon"
+                android:src="@mipmap/ic_launcher_temp"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
         </RelativeLayout>

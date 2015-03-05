@@ -96,7 +96,7 @@ public class NewsAdapter extends BaseAdapter {
             }
         });
 
-        applyBlur(headlineThumbnail,blurLayout);
+        //applyBlur(headlineThumbnail,blurLayout);
 
         return convertView;
     }

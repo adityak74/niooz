@@ -20,7 +20,6 @@ import org.json.JSONObject;
 
 public class SplashScreenActivity extends Activity {
 
-
     ProgressDialog pDialog1;
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
     private String th1,th2,th3,th4;
@@ -107,7 +106,7 @@ public class SplashScreenActivity extends Activity {
 
             startActivity(i);
             overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
-
+            finish();
         }
 
     }
