@@ -45,6 +45,14 @@ public class SplashScreenActivity extends Activity {
                     if(getStatus.equals("true")){
                         new LoadTrendingNews().execute();
                     }
+                    else {
+                        Log.d("Register Status","Not Registered Moving to Registration");
+                        Intent i = new Intent(SplashScreenActivity.this, MainActivity.class);
+                        startActivity(i);
+                        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        // close this activity
+                        finish();
+                    }
                 }catch (Exception ex){
                     Log.d("Register Status","Not Registered Moving to Registration");
                     Intent i = new Intent(SplashScreenActivity.this, MainActivity.class);

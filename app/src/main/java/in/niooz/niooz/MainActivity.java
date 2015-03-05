@@ -86,12 +86,13 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private String email,accessToken;
     private LoginButton authButton;
     private SignInButton btnSignIn;
-    private String provider;
+    private String providerName;
     private String th1,th2,th3,th4;
     private ProgressDialog pDialog1;
     private int sessioncount = 1;
     private ViewFlipper viewFlipper;
     private float lastX;
+    private String provider;
     Animation slide_in_left, slide_out_right;
 
 
@@ -122,6 +123,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             public void onClick(View v) {
                 if (!mGoogleApiClient.isConnecting()) {
                     mSignInClicked = true;
+
                     resolveSignInError();
                 }
             }
@@ -347,7 +349,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         mSignInClicked = false;
         //Toast.makeText(this, "User is connected using Google Plus Login!", Toast.LENGTH_LONG).show();
         // Get user's information
-        provider = "GooglePlus";
+        providerName = "GooglePlus";
+        provider = "GPLUS";
         updateUI(true);
         // Update the UI after signin
         //updateUI(true);
@@ -437,7 +440,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
             //Toast.makeText(getApplicationContext(),session.getAccessToken(),Toast.LENGTH_LONG).show();
             updateUI(true);
-            provider = "Facebook";
+            providerName = "Facebook";
+            provider = "FB";
             accessToken = session.getAccessToken();
             if(sessioncount==1) {
                 Log.d("Register Status", "Logged in...");
@@ -530,11 +534,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
     private void updateUI(boolean isSignedIn) {
         if (isSignedIn) {
-            btnSignIn.setVisibility(View.GONE);
-            authButton.setVisibility(View.GONE);
+            //btnSignIn.setVisibility(View.GONE);
+            //authButton.setVisibility(View.GONE);
         } else {
-            btnSignIn.setVisibility(View.VISIBLE);
-            authButton.setVisibility(View.VISIBLE);
+            //btnSignIn.setVisibility(View.VISIBLE);
+            //authButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -554,7 +558,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             ServiceHandler sh = new ServiceHandler();
             List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(1);
             nameValuePair.add(new BasicNameValuePair("access_token", accessToken));
-            nameValuePair.add(new BasicNameValuePair("provider", provider));
+            nameValuePair.add(new BasicNameValuePair("provider", providerName));
             //String url = TOKEN_VALIDATE_URL + accessToken;
             String resp = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
 
@@ -633,6 +637,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
                 SharedPreferences pref;
                 pref = getSharedPreferences("niooz",MODE_PRIVATE);
                 SharedPreferences.Editor edit = pref.edit();
+                //provider = 1 Google Plus and provider = 2 Facebook
+                edit.putString("provider",provider);
                 edit.putString("register","true");
                 edit.commit();
                 Log.d("Register Status","Registered and Saved");

@@ -1,13 +1,16 @@
 package in.niooz.niooz;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -26,6 +29,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.facebook.Session;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.Plus;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 
 import org.json.JSONArray;
@@ -53,6 +59,8 @@ public class HomeActivity extends ActionBarActivity {
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
     private String BASE_URL = "http://www.itechnospot.com/api/news.json";
     String th1,th2,th3,th4;
+    private GoogleApiClient mGoogleApiClient;
+
 
 
 
@@ -77,7 +85,7 @@ public class HomeActivity extends ActionBarActivity {
         mSwipeRefreshLayout.canChildScrollUp();
 
 
-
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext()).addApi(Plus.API).build();
 
         //Log.d("Home",getIntent().getExtras().getString("th1"));
 
@@ -170,6 +178,8 @@ public class HomeActivity extends ActionBarActivity {
 
         AppController.getInstance().addToRequestQueue(newsReq);
 
+
+
     }
 
     public class LoadTrendingNews extends AsyncTask<Void,Void,Void> {
@@ -236,17 +246,112 @@ public class HomeActivity extends ActionBarActivity {
         return true;
     }
 
+    public void logoutGoogle(){
+
+        new AlertDialog.Builder(this)
+                .setTitle("Logout")
+                .setMessage("Are you sure?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (mGoogleApiClient.isConnected()) {
+                            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+                            mGoogleApiClient.disconnect();
+                            mGoogleApiClient.connect();
+                        }
+                        try{
+                            SharedPreferences pref;
+                            pref = getSharedPreferences("niooz",MODE_PRIVATE);
+                            SharedPreferences.Editor edit = pref.edit();
+                            edit.putString("register","false");
+                            edit.putString("provider", "none");
+                            edit.apply();
+                            Log.d("Register Status", "Unregistered");
+                        }catch (Exception ex){
+                            Log.d("Register Status","UnRegistered but not saved SharedPrefs Error");
+                        }
+                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                        finish();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+
+    public void logoutFacebook(){
+        final Session session = Session.openActiveSessionFromCache(getApplicationContext());
+        if (session != null) {
+            if(session.isOpened())
+            {
+                new AlertDialog.Builder(this)
+                        .setTitle("Logout")
+                        .setMessage("Are you sure?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                session.closeAndClearTokenInformation();
+                                try{
+                                    SharedPreferences pref;
+                                    pref = getSharedPreferences("niooz",MODE_PRIVATE);
+                                    SharedPreferences.Editor edit = pref.edit();
+                                    edit.putString("register","false");
+                                    edit.putString("provider", "none");
+                                    edit.apply();
+                                    Log.d("Register Status", "Unregistered");
+                                }catch (Exception ex){
+                                    Log.d("Register Status","UnRegistered but not saved SharedPrefs Error");
+                                }
+                                startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+            }
+        }
+        else {
+            Toast.makeText(getApplicationContext(),"Session doesn't exist",Toast.LENGTH_LONG).show();
+        }
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId())
+        {
+            case R.id.logout :
+                SharedPreferences pref;
+                pref = getSharedPreferences("niooz", MODE_PRIVATE);
+                try {
+
+                    String res = pref.getString("provider", null);
+                    if(res.equals("FB")){
+                        logoutFacebook();
+                    }
+                    else if(res.equals("GPLUS")){
+                        logoutGoogle();
+                    }
+                }
+                catch (Exception ex){
+                    Log.d("Error",ex.toString());
+                }
+                break;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
