@@ -10,6 +10,7 @@
     <string name="title_facebook_login">FBActivity</string>
     <string name="fb_app_id">770665146354476</string>
     <string name="title_activity_splash_screen">Niooz</string>
+    <string name="title_activity_add_news">AddNews</string>
 
 
 </resources>

@@ -10,7 +10,7 @@
         android:id="@+id/newsBackgroundImage"
         android:layout_width="fill_parent"
         android:scaleType="centerCrop"
-        android:layout_height="200dp" />
+        android:layout_height="155dp" />
 
     <RelativeLayout
         android:id="@+id/blurLayout"
@@ -24,7 +24,7 @@
             android:layout_width="fill_parent"
             android:src="#AA000000"
             android:scaleType="fitXY"
-            android:layout_height="200dp" />
+            android:layout_height="155dp" />
 
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,7 +37,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="155dp"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
                 android:paddingTop="0dp"
@@ -51,41 +51,33 @@
                     android:scaleType="fitXY"
                     android:layout_height="match_parent" />
 
-                <ImageButton
+                <Button
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:src="@mipmap/ic_star_icon"
+                    android:background="@mipmap/ic_star_icon"
                     android:tint="#00000000"
-                    android:minHeight="80dp"
-                    android:minWidth="80dp"
-                    android:background="#00000000"
-                    android:paddingEnd="25dp"
-                    android:paddingRight="25dp"
+                    android:minHeight="70dp"
+                    android:minWidth="70dp"
+                    android:textColor="#d50000"
+                    android:drawablePadding="20dp"
+                    android:text="23"
+                    android:textAlignment="center"
                     android:scaleType="centerCrop"
-                    android:id="@+id/image"
-                    android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true" >
-
-                </ImageButton>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="27"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="25dp"
-                    android:paddingRight="25dp"
                     android:id="@+id/likes"
                     android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true" />
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true">
+
+                </Button>
+
+
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/headlineLayout"
                 android:clickable="true"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="155dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="10dp"

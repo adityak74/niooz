@@ -17,7 +17,7 @@
         >
         <RelativeLayout
             android:layout_width="0dp"
-            android:layout_height="160dp"
+            android:layout_height="150dp"
             android:layout_weight="1">
 
             <ImageView
@@ -38,7 +38,7 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:padding="3dp"
-            android:layout_height="160dp"
+            android:layout_height="150dp"
             android:layout_weight="1">
 
             <LinearLayout

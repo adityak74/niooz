@@ -14,6 +14,7 @@
                         xmlns:tools="http://schemas.android.com/tools"
                         xmlns:app="http://schemas.android.com/apk/res-auto"
                         android:id="@+id/news_list_view"
+                        android:background="#eeeeee"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:parallax_factor="1.9"

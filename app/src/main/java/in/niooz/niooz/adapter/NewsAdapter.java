@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,7 +77,7 @@ public class NewsAdapter extends BaseAdapter {
 
         NetworkImageView headlineThumbnail = (NetworkImageView) convertView.findViewById(R.id.newsBackgroundImage);
         final TextView headline = (TextView) convertView.findViewById(R.id.newsHeadLine);
-        TextView likes = (TextView) convertView.findViewById(R.id.likes);
+        Button likes = (Button) convertView.findViewById(R.id.likes);
         View clickView = convertView.findViewById(R.id.headlineClickView);
         RelativeLayout blurLayout = (RelativeLayout) convertView.findViewById(R.id.blurLayout);
 

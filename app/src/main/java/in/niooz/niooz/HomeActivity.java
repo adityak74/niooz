@@ -3,8 +3,13 @@ package in.niooz.niooz;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,8 +17,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -43,7 +50,9 @@ public class HomeActivity extends ActionBarActivity {
     private List<News> newsList = new ArrayList<News>();
     private NewsAdapter adapter;
     private String TAG = "HomeActivity";
+    private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
     private String BASE_URL = "http://www.itechnospot.com/api/news.json";
+    String th1,th2,th3,th4;
 
 
 
@@ -51,6 +60,9 @@ public class HomeActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
@@ -75,6 +87,9 @@ public class HomeActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 imageButton.setColorFilter(Color.argb(255,255,235,59));
+                Intent addnews = new Intent(HomeActivity.this,AddNews.class);
+                startActivity(addnews);
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
             }
         });
 
@@ -88,10 +103,15 @@ public class HomeActivity extends ActionBarActivity {
         hl3 = (TextView) v.findViewById(R.id.trendingHead3);
         hl4 = (TextView) v.findViewById(R.id.trendingHead4);
 
-        hl1.setText(getIntent().getExtras().getString("th1"));
-        hl2.setText(getIntent().getExtras().getString("th2"));
-        hl3.setText(getIntent().getExtras().getString("th3"));
-        hl4.setText(getIntent().getExtras().getString("th4"));
+        try {
+            hl1.setText(getIntent().getExtras().getString("th1"));
+            hl2.setText(getIntent().getExtras().getString("th2"));
+            hl3.setText(getIntent().getExtras().getString("th3"));
+            hl4.setText(getIntent().getExtras().getString("th4"));
+        }catch (Exception ex)
+        {
+            new LoadTrendingNews().execute();
+        }
 
 
         newsListView = (ParallaxListView) findViewById(R.id.news_list_view);
@@ -150,6 +170,46 @@ public class HomeActivity extends ActionBarActivity {
 
         AppController.getInstance().addToRequestQueue(newsReq);
 
+    }
+
+    public class LoadTrendingNews extends AsyncTask<Void,Void,Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            setProgressBarIndeterminateVisibility(true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            ServiceHandler sh = new ServiceHandler();
+            final String respStr = sh.makeServiceCall(TRENDING_URL, ServiceHandler.POST);
+            try {
+
+                //Log.d("Response: ", "> " + res);
+                JSONObject jsonObject = new JSONObject(respStr);
+                th1 = jsonObject.getString("t1");
+                th2 = jsonObject.getString("t2");
+                th3 = jsonObject.getString("t3");
+                th4 = jsonObject.getString("t4");
+
+
+            } catch (JSONException ex) {
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            hl1.setText(th1);
+            hl2.setText(th2);
+            hl3.setText(th3);
+            hl4.setText(th4);
+            setProgressBarIndeterminateVisibility(false);
+        }
     }
 
     public Activity getActivity(){

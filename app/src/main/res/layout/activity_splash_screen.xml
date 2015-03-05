@@ -4,27 +4,21 @@ xmlns:tools="http://schemas.android.com/tools"
 tools:context="in.niooz.niooz.splash_screen"
 android:layout_width="match_parent" android:layout_height="match_parent">
 
-<ImageView
-    android:layout_width="fill_parent"
-    android:src="@drawable/splash"
-    android:scaleType="centerCrop"
-    android:layout_height="fill_parent" />
-
 <RelativeLayout
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#AA000000"
+    android:background="#9A0000"
     android:layout_centerVertical="true"
     android:layout_centerHorizontal="true">
 
-    <TextView
-        android:layout_width="match_parent"
+    <ImageView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="80sp"
-        android:text="Niooz"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:textColor="@android:color/white"
+        android:adjustViewBounds="true"
+        android:height="200dp"
+        android:width="184dp"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/ic_launcher_temp"
         android:gravity="center"
         android:id="@+id/textView"
         android:layout_centerVertical="true"
