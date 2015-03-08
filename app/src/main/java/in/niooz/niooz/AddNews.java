@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.EditText;
 
 
 public class AddNews extends ActionBarActivity {
@@ -27,6 +28,8 @@ public class AddNews extends ActionBarActivity {
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
 
         ///actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP|ActionBar.DISPLAY_SHOW_TITLE|ActionBar.DISPLAY_SHOW_CUSTOM);
+        EditText urlInput = (EditText) findViewById(R.id.urlInput);
+        urlInput.setSelection(urlInput.getText().length());
 
     }
 
