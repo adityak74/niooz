@@ -12,6 +12,7 @@
     <string name="title_activity_splash_screen">Niooz</string>
     <string name="title_activity_add_news">AddNews</string>
     <string name="title_activity_add_news_receive">Niooz</string>
+    <string name="title_activity_article_web_view">ArticleWebView</string>
 
 
 </resources>
