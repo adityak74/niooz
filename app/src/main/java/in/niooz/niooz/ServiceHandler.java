@@ -19,6 +19,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.util.List;
 
 public class ServiceHandler {
@@ -83,11 +84,11 @@ public class ServiceHandler {
             response = EntityUtils.toString(httpEntity);
 
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            response = "failed";
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
+            response = "failed";
         } catch (IOException e) {
-            e.printStackTrace();
+            response = "failed";
         }
 
         return response;

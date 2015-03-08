@@ -1,7 +1,9 @@
 package in.niooz.niooz;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
@@ -13,6 +15,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.plus.Plus;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +29,7 @@ public class SplashScreenActivity extends Activity {
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
     private String th1,th2,th3,th4;
     private static int SPLASH_TIME_OUT = 2000;
+    private boolean failed;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,10 +85,12 @@ public class SplashScreenActivity extends Activity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            ServiceHandler sh = new ServiceHandler();
-            final String respStr = sh.makeServiceCall(TRENDING_URL, ServiceHandler.POST);
-            try {
 
+
+            try {
+                ServiceHandler sh = new ServiceHandler();
+
+                final String respStr = sh.makeServiceCall(TRENDING_URL, ServiceHandler.POST);
                 //Log.d("Response: ", "> " + res);
                 JSONObject jsonObject = new JSONObject(respStr);
                 th1 = jsonObject.getString("t1");
@@ -91,7 +99,26 @@ public class SplashScreenActivity extends Activity {
                 th4 = jsonObject.getString("t4");
 
 
-            } catch (JSONException ex) {
+            } catch (Exception ex) {
+                failed = true;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new AlertDialog.Builder(SplashScreenActivity.this)
+                                .setTitle("Oops!!!")
+                                .setMessage("Make sure you are connected to a reliable internet connection.")
+                                .setCancelable(true)
+
+                                .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        finish();
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
+                });
 
             }
 
@@ -105,17 +132,22 @@ public class SplashScreenActivity extends Activity {
                 pDialog1.dismiss();
             }
 
-            Intent i = new Intent(getApplicationContext(), HomeActivity.class);
-            i.putExtra("th1", th1);
-            i.putExtra("th2", th2);
-            i.putExtra("th3", th3);
-            i.putExtra("th4", th4);
-            Log.d("Splash",th1 + th2 + th3 + th4);
+            if(!failed) {
 
-            startActivity(i);
-            overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
-            finish();
+                Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                i.putExtra("th1", th1);
+                i.putExtra("th2", th2);
+                i.putExtra("th3", th3);
+                i.putExtra("th4", th4);
+                Log.d("Splash", th1 + th2 + th3 + th4);
+
+                startActivity(i);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish();
+            }
         }
+
+
 
     }
 

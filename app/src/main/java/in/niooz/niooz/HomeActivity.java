@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -20,7 +19,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
+import android.widget.AbsListView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +59,9 @@ public class HomeActivity extends ActionBarActivity {
     private String BASE_URL = "http://www.itechnospot.com/api/news.json";
     String th1,th2,th3,th4;
     private GoogleApiClient mGoogleApiClient;
+    private int pageToLoad = 2;
+    private int pageLoaded = 1;
+    private View footer;
 
 
 
@@ -74,18 +76,11 @@ public class HomeActivity extends ActionBarActivity {
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mSwipeRefreshLayout.setRefreshing(true);
-                Log.d("Swipe", "Refreshing Number");
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
+
         mSwipeRefreshLayout.canChildScrollUp();
 
 
-        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext()).addApi(Plus.API).build();
+
 
         //Log.d("Home",getIntent().getExtras().getString("th1"));
 
@@ -102,9 +97,12 @@ public class HomeActivity extends ActionBarActivity {
         });
 
 
-        LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
+        final LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.news_home_header,null);
+
+
+
 
         hl1 = (TextView) v.findViewById(R.id.trendingHead1);
         hl2 = (TextView) v.findViewById(R.id.trendingHead2);
@@ -124,6 +122,8 @@ public class HomeActivity extends ActionBarActivity {
 
         newsListView = (ParallaxListView) findViewById(R.id.news_list_view);
         newsListView.addParallaxedHeaderView(v);
+        footer = inflater.inflate(R.layout.news_item_footer,null);
+        //newsListView.addFooterView(footer);
         adapter = new NewsAdapter(this,newsList);
         newsListView.setAdapter(adapter);
 
@@ -133,7 +133,7 @@ public class HomeActivity extends ActionBarActivity {
         pDialog.setMessage("Loading...");
         pDialog.show();
 
-        JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
+        final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
@@ -153,6 +153,7 @@ public class HomeActivity extends ActionBarActivity {
                                 news.setViews(obj.getInt("views"));
                                 news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
                                 news.setNoOfFollowers(obj.getInt("noOfFollowers"));
+                                news.setFollowing(false);
 
                                 newsList.add(news);
 
@@ -171,15 +172,170 @@ public class HomeActivity extends ActionBarActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
                 hidePDialog();
+                /*
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Oops!!!")
+                        .setMessage("Couldn't load News.Maybe no Internet connection or the link is down.Try restarting the application.")
+                        .setCancelable(true)
+                        .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                finish();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                        */
+
+                View errorView = inflater.inflate(R.layout.error_msg,null);
+                TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
+                errTv.setText("Couldn't load News.");
+
+                //newsListView.removeFooterView(footer);
+                newsListView.addFooterView(errorView);
 
             }
         });
 
-
         AppController.getInstance().addToRequestQueue(newsReq);
 
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(true);
+
+                Log.d("Swipe", "Refreshing News");
+                newsList.clear();
+                final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
+                        new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
+                                Log.d(TAG, response.toString());
+                                hidePDialog();
+
+                                // Parsing json
+                                for (int i = 0; i < response.length(); i++) {
+                                    try {
+
+                                        JSONObject obj = response.getJSONObject(i);
+                                        News news = new News();
+                                        news.setId(Integer.parseInt(obj.getString("id")));
+                                        news.setHeadlineBackgroundURL(obj.getString("headlineBackURL"));
+                                        news.setHeadline(obj.getString("headline"));
+                                        news.setLikes(obj.getInt("likes"));
+                                        news.setViews(obj.getInt("views"));
+                                        news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
+                                        news.setNoOfFollowers(obj.getInt("noOfFollowers"));
+                                        news.setFollowing(false);
+
+                                        newsList.add(news);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+
+                                // notifying list adapter about data changes
+                                // so that it renders the list view with updated data
+                                adapter.notifyDataSetChanged();
+
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        VolleyLog.d(TAG, "Error: " + error.getMessage());
+                        hidePDialog();
+                /*
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Oops!!!")
+                        .setMessage("Couldn't load News.Maybe no Internet connection or the link is down.Try restarting the application.")
+                        .setCancelable(true)
+                        .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                finish();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                        */
+
+                        View errorView = inflater.inflate(R.layout.error_msg,null);
+                        TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
+                        errTv.setText("Couldn't load News.");
+
+                        //newsListView.removeFooterView(footer);
+                        newsListView.addFooterView(errorView);
+
+                    }
+                });
+                AppController.getInstance().addToRequestQueue(newsReq);
+
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                //Log.d("HomeActivity","GetCount : " + String.valueOf(newsListView.getCount()-1) + " LastVisible : " + (newsListView.getLastVisiblePosition()));
+                int visible = newsListView.getLastVisiblePosition();
+                int allchildcount = newsListView.getCount();
+
+                    if (visible == (allchildcount - 1)) {
+
+                        if(pageToLoad > pageLoaded) {
+                            Log.d("HomeActivity", "Load page number "  + pageToLoad);
+                            new LoadPage().execute(pageToLoad);
+                            pageLoaded++;
+                        }
+                    }
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+        });
+
+    }
+
+    public class LoadPage extends AsyncTask<Integer,Void,Void>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            newsListView.addFooterView(footer);
+        }
+
+        @Override
+        protected Void doInBackground(Integer... params) {
+
+            final int pgno = params[0];
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(),"Async Task to load page : " + pgno,Toast.LENGTH_LONG).show();
+                }
+            });
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
 
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            newsListView.removeFooterView(footer);
+            pageToLoad++;
+
+        }
     }
 
     public class LoadTrendingNews extends AsyncTask<Void,Void,Void> {

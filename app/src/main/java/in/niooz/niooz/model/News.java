@@ -11,6 +11,7 @@ public class News {
     private int views;
     private int articlesSubmitted;
     private int noOfFollowers;
+    private boolean following;
 
     public News(){
 
@@ -67,6 +68,8 @@ public class News {
 
     public void setNoOfFollowers(int noOfFollowers){ this.noOfFollowers = noOfFollowers;}
 
+    public boolean getFollowing(){ return following;}
 
+    public void setFollowing(boolean following){ this.following = following;}
 
 }

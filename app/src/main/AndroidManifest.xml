@@ -42,12 +42,21 @@
         </activity>
         <activity
             android:name=".AddNews"
-            android:parentActivityName="in.niooz.niooz.HomeActivity"
-            android:label="@string/title_activity_add_news" >
+            android:label="@string/title_activity_add_news"
+            android:parentActivityName=".HomeActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="in.niooz.niooz.HomeActivity"
-                />
+                android:value="in.niooz.niooz.HomeActivity" />
+        </activity>
+        <activity
+            android:name=".AddNewsReceive"
+            android:label="@string/title_activity_add_news_receive" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
     </application>
 
