@@ -13,6 +13,7 @@
     <string name="title_activity_add_news">AddNews</string>
     <string name="title_activity_add_news_receive">Niooz</string>
     <string name="title_activity_article_web_view">ArticleWebView</string>
+    <string name="title_activity_article_sources">ArticleSourcesActivity</string>
 
 
 </resources>

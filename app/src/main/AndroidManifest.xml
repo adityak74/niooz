@@ -34,7 +34,11 @@
         <activity
             android:name=".SplashScreenActivity"
             android:label="@string/title_activity_splash_screen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".AddNews"
@@ -57,13 +61,15 @@
         </activity>
         <activity
             android:name=".ArticleWebView"
-            android:parentActivityName=".HomeActivity"
-            android:label="@string/title_activity_article_web_view" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:label="@string/title_activity_article_web_view"
+            android:parentActivityName=".ArticleSourcesActivity" >
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ArticleSourcesActivity"
+            android:label="@string/title_activity_article_sources"
+            android:parentActivityName=".HomeActivity">
+
         </activity>
     </application>
 

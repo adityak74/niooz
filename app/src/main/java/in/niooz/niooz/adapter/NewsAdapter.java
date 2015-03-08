@@ -34,6 +34,7 @@ import com.android.volley.toolbox.NetworkImageView;
 import java.util.List;
 import java.util.zip.Inflater;
 
+import in.niooz.niooz.ArticleSourcesActivity;
 import in.niooz.niooz.R;
 import in.niooz.niooz.app.AppController;
 import in.niooz.niooz.model.News;
@@ -104,6 +105,9 @@ public class NewsAdapter extends BaseAdapter{
             @Override
             public void onClick(View v) {
                 Toast.makeText(activity, "Clicked on : " + headline.getText(), Toast.LENGTH_LONG).show();
+                Intent i = new Intent(activity, ArticleSourcesActivity.class);
+                i.putExtra("headline",headline.getText().toString());
+                activity.startActivity(i);
             }
         });
 

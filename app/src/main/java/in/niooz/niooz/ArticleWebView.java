@@ -2,11 +2,13 @@ package in.niooz.niooz;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.PersistableBundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class ArticleWebView extends ActionBarActivity {
@@ -19,6 +21,9 @@ public class ArticleWebView extends ActionBarActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Article Title");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
+
+        String link = getIntent().getExtras().getString("link");
+        Toast.makeText(getApplicationContext(),"Got Link for Article : " + link,Toast.LENGTH_LONG).show();
     }
 
 
