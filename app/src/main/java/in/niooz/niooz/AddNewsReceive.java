@@ -24,7 +24,6 @@ public class AddNewsReceive extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_news_receive);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Add You News");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
 
