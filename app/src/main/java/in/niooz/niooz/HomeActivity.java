@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -43,6 +44,7 @@ import java.util.List;
 import in.niooz.niooz.app.AppController;
 import in.niooz.niooz.adapter.NewsAdapter;
 import in.niooz.niooz.model.News;
+import in.niooz.niooz.util.DataBaseHandler;
 
 
 public class HomeActivity extends ActionBarActivity {
@@ -62,6 +64,7 @@ public class HomeActivity extends ActionBarActivity {
     private int pageToLoad = 2;
     private int pageLoaded = 1;
     private View footer;
+    private DataBaseHandler dataBaseHandler;
 
 
 
@@ -133,6 +136,12 @@ public class HomeActivity extends ActionBarActivity {
         pDialog.setMessage("Loading...");
         pDialog.show();
 
+        dataBaseHandler = new DataBaseHandler(this);
+
+
+
+
+
         final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -156,12 +165,33 @@ public class HomeActivity extends ActionBarActivity {
                                 news.setFollowing(false);
 
                                 newsList.add(news);
+                                dataBaseHandler.addNewsItem(news);
+
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
                         }
+
+
+                        //Toast.makeText(getApplicationContext(),String.valueOf(newsList.size()),Toast.LENGTH_LONG).show();
+                        //addNewsToDatabase(newsList);
+
+                        try{
+                            List<News> tempnewslist = dataBaseHandler.getAllNews();
+                            for(News n1 : tempnewslist){
+                                String log = "ID : " + n1.getId() + " HEADLINE : " + n1.getHeadline();
+                                Log.d("Result",log);
+                            }
+                            if(dataBaseHandler.getNewsCount() > 0)
+                            {
+                                Toast.makeText(getApplicationContext(),"NEWS COUNT : " + dataBaseHandler.getNewsCount(),Toast.LENGTH_LONG).show();
+                            }
+                        }catch (Exception ex){
+                            Toast.makeText(getApplicationContext(),"DB EMPTY",Toast.LENGTH_LONG).show();
+                        }
+
 
                         // notifying list adapter about data changes
                         // so that it renders the list view with updated data
@@ -196,6 +226,8 @@ public class HomeActivity extends ActionBarActivity {
 
             }
         });
+
+
 
         AppController.getInstance().addToRequestQueue(newsReq);
 
@@ -394,6 +426,16 @@ public class HomeActivity extends ActionBarActivity {
             pDialog = null;
         }
     }
+
+    public void addNewsToDatabase(List<News> allNewsList){
+
+    }
+
+    public void setUpUsingDatabase(){
+
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -17,20 +17,22 @@
         >
         <RelativeLayout
             android:layout_width="0dp"
+            android:background="#9A0000"
             android:layout_height="150dp"
             android:layout_weight="1">
 
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:id="@+id/logo"
-                android:padding="5dp"
+                android:background="#9A0000"
+                android:padding="0dp"
                 android:src="@mipmap/ic_launcher_temp"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
         </RelativeLayout>
         <View
-            android:layout_width="2dp"
+            android:layout_width="3dp"
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
             android:background="#bababa"

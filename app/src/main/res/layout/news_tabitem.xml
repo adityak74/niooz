@@ -50,7 +50,7 @@
                 <ImageView
                     android:id="@+id/triangleImg"
                     android:layout_width="match_parent"
-                    android:src="@drawable/trianglearrow_left_red"
+                    android:src="@drawable/red_triangle"
                     android:scaleType="fitXY"
                     android:layout_height="match_parent" />
 

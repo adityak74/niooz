@@ -47,7 +47,7 @@ public class ServiceHandler {
      * @method - http request method
      * @params - http request params
      * */
-    public String makeServiceCall(String url, int method,
+        public String makeServiceCall(String url, int method,
                                   List<NameValuePair> params) {
         try {
             // http client

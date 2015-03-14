@@ -28,7 +28,7 @@ public class SplashScreenActivity extends Activity {
     ProgressDialog pDialog1;
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
     private String th1,th2,th3,th4;
-    private static int SPLASH_TIME_OUT = 2000;
+    private static int SPLASH_TIME_OUT = 500;
     private boolean failed;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +76,10 @@ public class SplashScreenActivity extends Activity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            pDialog1 = new ProgressDialog(SplashScreenActivity.this);
-            pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            pDialog1.setMessage("Cooking News for You...");
-            pDialog1.show();
+            //pDialog1 = new ProgressDialog(SplashScreenActivity.this);
+            //pDialog1.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            //pDialog1.setMessage("Cooking News for You...");
+            //pDialog1.show();
 
         }
 
@@ -128,9 +128,9 @@ public class SplashScreenActivity extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            if (pDialog1.isShowing()) {
-                pDialog1.dismiss();
-            }
+            //if (pDialog1.isShowing()) {
+            //    pDialog1.dismiss();
+            //}
 
             if(!failed) {
 

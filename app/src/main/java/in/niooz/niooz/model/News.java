@@ -17,7 +17,7 @@ public class News {
 
     }
 
-    public News(int id,String headline,String headlineBackgroundURL,int likes,int views,int articlesSubmitted,int noOfFollowers){
+    public News(int id,String headline,String headlineBackgroundURL,int likes,int views,int articlesSubmitted,int noOfFollowers,boolean following){
         this.id = id;
         this.headline = headline;
         this.headlineBackgroundURL = headlineBackgroundURL;
@@ -25,7 +25,7 @@ public class News {
         this.views = views;
         this.articlesSubmitted = articlesSubmitted;
         this.noOfFollowers = noOfFollowers;
-
+        this.following = following;
     }
 
     public int getId(){ return id;}

@@ -97,6 +97,7 @@ public class NewsAdapter extends BaseAdapter{
 
         headlineThumbnail.setImageUrl(n.getHeadlineBackgroundURL(),imageLoader);
 
+
         headline.setText(n.getHeadline());
 
         likes.setText(String.valueOf(n.getLikes()));
