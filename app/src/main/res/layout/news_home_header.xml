@@ -27,7 +27,7 @@
                 android:id="@+id/logo"
                 android:background="#9A0000"
                 android:padding="0dp"
-                android:src="@mipmap/ic_launcher_temp"
+                android:src="@drawable/logocolor"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true" />
         </RelativeLayout>

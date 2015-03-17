@@ -23,7 +23,7 @@
         <item name="android:background">@color/actionBarColor</item>
         <item name="android:displayOptions">useLogo|showHome</item>
         <item name="background">@color/actionBarColor</item>
-        <item name="logo">@drawable/ic_home</item>
+        <item name="logo">@mipmap/ic_blank_logo</item>
         <item name="displayOptions">useLogo|showHome</item>
     </style>
 
