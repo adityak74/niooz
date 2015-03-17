@@ -12,6 +12,8 @@
     <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/newsBackgroundImage"
         android:layout_width="fill_parent"
+        android:background="#E3E3E3"
+        android:src="@mipmap/ic_blank_logo"
         android:scaleType="centerCrop"
         android:layout_height="155dp" />
 
@@ -22,12 +24,45 @@
         android:layout_width="match_parent"
         >
 
+
+
         <ImageView
             android:id="@+id/glassLayer"
             android:layout_width="fill_parent"
             android:src="#AA000000"
             android:scaleType="fitXY"
             android:layout_height="155dp" />
+
+
+
+        <RelativeLayout
+            android:id="@+id/statsLayout"
+            android:background="#910000"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:text="Stats Here"
+                android:textColor="#fff"
+                android:gravity="right"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_height="match_parent" />
+
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_above="@+id/statsLayout"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:background="#fff"
+            />
 
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -50,7 +85,7 @@
                 <ImageView
                     android:id="@+id/triangleImg"
                     android:layout_width="match_parent"
-                    android:src="@drawable/red_triangle"
+                    android:src="@drawable/trianglearrow_left_red"
                     android:scaleType="fitXY"
                     android:layout_height="match_parent" />
 

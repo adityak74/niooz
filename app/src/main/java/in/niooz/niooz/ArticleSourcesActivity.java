@@ -38,6 +38,10 @@ public class ArticleSourcesActivity extends ActionBarActivity {
         actionBar.setTitle("Source:"+headline);
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
 
+
+
+
+
         listView = (ListView) findViewById(R.id.sourceList);
         String[] values = new String[] {    "Article Source 1",
                                             "Article Source 2",

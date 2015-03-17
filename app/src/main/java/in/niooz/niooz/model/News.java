@@ -1,5 +1,7 @@
 package in.niooz.niooz.model;
 
+import android.media.Image;
+
 /**
  * Created by aditya on 2/21/15.
  */

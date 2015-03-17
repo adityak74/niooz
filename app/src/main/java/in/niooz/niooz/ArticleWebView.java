@@ -1,6 +1,10 @@
 package in.niooz.niooz;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.os.PersistableBundle;
 import android.support.v7.app.ActionBar;
@@ -22,15 +26,15 @@ public class ArticleWebView extends ActionBarActivity {
         actionBar.setTitle("Article Title");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
 
-        String link = getIntent().getExtras().getString("link");
-        Toast.makeText(getApplicationContext(),"Got Link for Article : " + link,Toast.LENGTH_LONG).show();
+        int articleId = getIntent().getExtras().getInt("articleId");
+        Toast.makeText(getApplicationContext(),"Got Link for Article : niooz.in/article/" + articleId,Toast.LENGTH_LONG).show();
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_article_web_view, menu);
+        getMenuInflater().inflate(R.menu.menu_article_web_view, menu);
         return true;
     }
 
@@ -39,13 +43,28 @@ public class ArticleWebView extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()){
+            case R.id.action_share :    Intent sendIntent = new Intent();
+                                        sendIntent.setAction(Intent.ACTION_SEND);
+                                        sendIntent.putExtra(Intent.EXTRA_TEXT, "Hello");
+                                        sendIntent.setType("text/plain");
+                                        startActivity(sendIntent);
+                                        break;
+            case R.id.action_fav :      if(favourite_article()){
+                                            item.getIcon().setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.ADD));
+                                            Toast.makeText(getApplicationContext(),"Article favourited",Toast.LENGTH_LONG).show();
+                                        }else {
+                                            Toast.makeText(getApplicationContext(),"Some Error Try Again",Toast.LENGTH_LONG).show();
+                                        }
+                                        break;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    public boolean favourite_article(){
+        return true;
+    }
+
+
 }

@@ -9,11 +9,6 @@
         android:icon="@drawable/ic_category_action_bar"
         app:showAsAction="always" />
     <item
-        android:title="More"
-        android:id="@+id/action_overflow"
-        android:icon="@drawable/ic_overflow_action_bar"
-        app:showAsAction="always" />
-    <item
         android:title="User"
         android:id="@+id/action_user"
         android:icon="@drawable/ic_user_action_bar"

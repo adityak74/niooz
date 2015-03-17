@@ -2,6 +2,7 @@ package in.niooz.niooz;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +12,7 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -21,7 +23,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +48,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import in.niooz.niooz.app.AppController;
 import in.niooz.niooz.adapter.NewsAdapter;
@@ -49,6 +59,10 @@ import in.niooz.niooz.util.DataBaseHandler;
 
 public class HomeActivity extends ActionBarActivity {
 
+
+    private Timer timer;
+    private Handler handler = new Handler();
+    private TimerTask doAsynchronousTask;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private TextView hl1,hl2,hl3,hl4;
     private ProgressDialog pDialog;
@@ -65,6 +79,11 @@ public class HomeActivity extends ActionBarActivity {
     private int pageLoaded = 1;
     private View footer;
     private DataBaseHandler dataBaseHandler;
+    private View v;
+    private ProgressBar progressBar;
+    private LayoutInflater inflater;
+    private boolean couldNotLoadNews = false;
+
 
 
 
@@ -73,9 +92,12 @@ public class HomeActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
+        /*
         ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
+        actionBar.setTitle("Nz");
+        actionBar.setLogo(R.drawable.ic_home);
+        */
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
@@ -92,18 +114,40 @@ public class HomeActivity extends ActionBarActivity {
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                /*
                 imageButton.setColorFilter(Color.argb(255,255,235,59));
                 Intent addnews = new Intent(HomeActivity.this,AddNews.class);
                 startActivity(addnews);
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                */
+
+                final Dialog dialog = new Dialog(HomeActivity.this);
+                dialog.setContentView(R.layout.activity_add_news);
+                dialog.setTitle("Add News");
+                dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                dialog.show();
+
+                EditText urlInput = (EditText) dialog.findViewById(R.id.urlInput);
+                urlInput.setSelection(urlInput.getText().length());
+
+                Button submitBt = (Button) dialog.findViewById(R.id.submitNewsButton);
+                submitBt.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getApplicationContext(),"Request for Submit",Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                        callAsynchronousTask();
+                    }
+                });
+
             }
         });
 
 
-        final LayoutInflater inflater = (LayoutInflater)getApplicationContext().getSystemService
+        inflater = (LayoutInflater)getApplicationContext().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.news_home_header,null);
-
+        v = inflater.inflate(R.layout.news_home_header,null);
 
 
 
@@ -111,6 +155,9 @@ public class HomeActivity extends ActionBarActivity {
         hl2 = (TextView) v.findViewById(R.id.trendingHead2);
         hl3 = (TextView) v.findViewById(R.id.trendingHead3);
         hl4 = (TextView) v.findViewById(R.id.trendingHead4);
+        progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
+
 
         try {
             hl1.setText(getIntent().getExtras().getString("th1"));
@@ -127,20 +174,152 @@ public class HomeActivity extends ActionBarActivity {
         newsListView.addParallaxedHeaderView(v);
         footer = inflater.inflate(R.layout.news_item_footer,null);
         //newsListView.addFooterView(footer);
-        adapter = new NewsAdapter(this,newsList);
+        adapter = new NewsAdapter(getActivity(),newsList);
         newsListView.setAdapter(adapter);
 
 
         pDialog = new ProgressDialog(getActivity());
         // Showing progress dialog before making http request
-        pDialog.setMessage("Loading...");
-        pDialog.show();
+        //pDialog.setMessage("Loading...");
+        //pDialog.show();
 
         dataBaseHandler = new DataBaseHandler(this);
 
+        try{
+            if(dataBaseHandler.getNewsCount() > 0)
+            {
+                List<News> tempnewslist = dataBaseHandler.getAllNews();
+                adapter = new NewsAdapter(this,tempnewslist);
+                newsListView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+                Log.d("DBSTORAGE","Retrieved from Database");
+                pDialog.dismiss();
+            }else {
+                Log.d("DBSTORAGE","Cant Retrieved from Database = 0");
+                Log.d("DBSTORAGE","Cannot Retrieved from Database");
+                pDialog.setMessage("Loading from Internet");
+                pDialog.show();
+                setupNews();
+            }
+        }catch (Exception ex){
+            Log.d("DBSTORAGE","Cannot Retrieved from Database");
+            pDialog.setMessage("Loading from Internet");
+            pDialog.show();
+            setupNews();
+        }
 
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(true);
 
+                Log.d("Swipe", "Refreshing News");
+                newsList.clear();
+                adapter = new NewsAdapter(getActivity(),newsList);
+                newsListView.setAdapter(adapter);
 
+                final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
+                        new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
+                                Log.d(TAG, response.toString());
+                                hidePDialog();
+
+                                // Parsing json
+                                for (int i = 0; i < response.length(); i++) {
+                                    try {
+
+                                        JSONObject obj = response.getJSONObject(i);
+                                        News news = new News();
+                                        news.setId(Integer.parseInt(obj.getString("id")));
+                                        news.setHeadlineBackgroundURL(obj.getString("headlineBackURL"));
+                                        news.setHeadline(obj.getString("headline"));
+                                        news.setLikes(obj.getInt("likes"));
+                                        news.setViews(obj.getInt("views"));
+                                        news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
+                                        news.setNoOfFollowers(obj.getInt("noOfFollowers"));
+                                        news.setFollowing(false);
+
+                                        newsList.add(news);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+
+                                // notifying list adapter about data changes
+                                // so that it renders the list view with updated data
+                                adapter.notifyDataSetChanged();
+                                addNewsToDatabase(newsList);
+                                couldNotLoadNews = true;
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        VolleyLog.d(TAG, "Error: " + error.getMessage());
+                        hidePDialog();
+                /*
+                new AlertDialog.Builder(HomeActivity.this)
+                        .setTitle("Oops!!!")
+                        .setMessage("Couldn't load News.Maybe no Internet connection or the link is down.Try restarting the application.")
+                        .setCancelable(true)
+                        .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                finish();
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                        */
+
+                        View errorView = inflater.inflate(R.layout.error_msg,null);
+                        TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
+                        errTv.setText("Couldn't load News.");
+
+                        //newsListView.removeFooterView(footer);
+                        if(!couldNotLoadNews) {
+                            newsListView.addFooterView(errorView);
+                            couldNotLoadNews = true;
+                        }
+
+                    }
+                });
+                AppController.getInstance().addToRequestQueue(newsReq);
+
+                //mSwipeRefreshLayout.setRefreshing(false);
+                new LoadTrendingNews().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
+        });
+
+        newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                //Log.d("HomeActivity","GetCount : " + String.valueOf(newsListView.getCount()-1) + " LastVisible : " + (newsListView.getLastVisiblePosition()));
+                int visible = newsListView.getLastVisiblePosition();
+                int allchildcount = newsListView.getCount();
+
+                    if (visible == (allchildcount - 1)) {
+
+                        if(pageToLoad > pageLoaded) {
+                            Log.d("HomeActivity", "Load page number "  + pageToLoad);
+                            new LoadPage().execute(pageToLoad);
+                            pageLoaded++;
+                        }
+                    }
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+            }
+        });
+
+    }
+
+    public boolean setupNews(){
 
         final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
                 new Response.Listener<JSONArray>() {
@@ -176,26 +355,12 @@ public class HomeActivity extends ActionBarActivity {
 
 
                         //Toast.makeText(getApplicationContext(),String.valueOf(newsList.size()),Toast.LENGTH_LONG).show();
-                        //addNewsToDatabase(newsList);
-
-                        try{
-                            List<News> tempnewslist = dataBaseHandler.getAllNews();
-                            for(News n1 : tempnewslist){
-                                String log = "ID : " + n1.getId() + " HEADLINE : " + n1.getHeadline();
-                                Log.d("Result",log);
-                            }
-                            if(dataBaseHandler.getNewsCount() > 0)
-                            {
-                                Toast.makeText(getApplicationContext(),"NEWS COUNT : " + dataBaseHandler.getNewsCount(),Toast.LENGTH_LONG).show();
-                            }
-                        }catch (Exception ex){
-                            Toast.makeText(getApplicationContext(),"DB EMPTY",Toast.LENGTH_LONG).show();
-                        }
-
+                        addNewsToDatabase(newsList);
 
                         // notifying list adapter about data changes
                         // so that it renders the list view with updated data
                         adapter.notifyDataSetChanged();
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -226,113 +391,11 @@ public class HomeActivity extends ActionBarActivity {
 
             }
         });
-
-
-
         AppController.getInstance().addToRequestQueue(newsReq);
-
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mSwipeRefreshLayout.setRefreshing(true);
-
-                Log.d("Swipe", "Refreshing News");
-                newsList.clear();
-                final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
-                        new Response.Listener<JSONArray>() {
-                            @Override
-                            public void onResponse(JSONArray response) {
-                                Log.d(TAG, response.toString());
-                                hidePDialog();
-
-                                // Parsing json
-                                for (int i = 0; i < response.length(); i++) {
-                                    try {
-
-                                        JSONObject obj = response.getJSONObject(i);
-                                        News news = new News();
-                                        news.setId(Integer.parseInt(obj.getString("id")));
-                                        news.setHeadlineBackgroundURL(obj.getString("headlineBackURL"));
-                                        news.setHeadline(obj.getString("headline"));
-                                        news.setLikes(obj.getInt("likes"));
-                                        news.setViews(obj.getInt("views"));
-                                        news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
-                                        news.setNoOfFollowers(obj.getInt("noOfFollowers"));
-                                        news.setFollowing(false);
-
-                                        newsList.add(news);
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-
-                                // notifying list adapter about data changes
-                                // so that it renders the list view with updated data
-                                adapter.notifyDataSetChanged();
-
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        VolleyLog.d(TAG, "Error: " + error.getMessage());
-                        hidePDialog();
-                /*
-                new AlertDialog.Builder(HomeActivity.this)
-                        .setTitle("Oops!!!")
-                        .setMessage("Couldn't load News.Maybe no Internet connection or the link is down.Try restarting the application.")
-                        .setCancelable(true)
-                        .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                finish();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-                        */
-
-                        View errorView = inflater.inflate(R.layout.error_msg,null);
-                        TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
-                        errTv.setText("Couldn't load News.");
-
-                        //newsListView.removeFooterView(footer);
-                        newsListView.addFooterView(errorView);
-
-                    }
-                });
-                AppController.getInstance().addToRequestQueue(newsReq);
-
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
-
-        newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                //Log.d("HomeActivity","GetCount : " + String.valueOf(newsListView.getCount()-1) + " LastVisible : " + (newsListView.getLastVisiblePosition()));
-                int visible = newsListView.getLastVisiblePosition();
-                int allchildcount = newsListView.getCount();
-
-                    if (visible == (allchildcount - 1)) {
-
-                        if(pageToLoad > pageLoaded) {
-                            Log.d("HomeActivity", "Load page number "  + pageToLoad);
-                            new LoadPage().execute(pageToLoad);
-                            pageLoaded++;
-                        }
-                    }
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-            }
-        });
-
+        return true;
     }
+
+
 
     public class LoadPage extends AsyncTask<Integer,Void,Void>{
         @Override
@@ -374,8 +437,12 @@ public class HomeActivity extends ActionBarActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
 
-            setProgressBarIndeterminateVisibility(true);
+            hl1.setVisibility(View.GONE);
+            hl2.setVisibility(View.GONE);
+            hl3.setVisibility(View.GONE);
+            hl4.setVisibility(View.GONE);
         }
 
         @Override
@@ -392,9 +459,18 @@ public class HomeActivity extends ActionBarActivity {
                 th4 = jsonObject.getString("t4");
 
 
-            } catch (JSONException ex) {
+            } catch (Exception e){
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Couldn't load trending news.Try again",Toast.LENGTH_SHORT).show();
+                    }
+                });
+
 
             }
+
 
             return null;
         }
@@ -406,7 +482,13 @@ public class HomeActivity extends ActionBarActivity {
             hl2.setText(th2);
             hl3.setText(th3);
             hl4.setText(th4);
-            setProgressBarIndeterminateVisibility(false);
+            progressBar.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setRefreshing(false);
+
+            hl1.setVisibility(View.VISIBLE);
+            hl2.setVisibility(View.VISIBLE);
+            hl3.setVisibility(View.VISIBLE);
+            hl4.setVisibility(View.VISIBLE);
         }
     }
 
@@ -553,4 +635,89 @@ public class HomeActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public class UpdateHeadline extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            final ServiceHandler sh = new ServiceHandler();
+
+            final String resp = sh.makeServiceCall("http://api.itechnospot.com/status.php",ServiceHandler.GET);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(resp.equals("OK")){
+                        handler.removeCallbacks(this);
+                        Toast.makeText(getApplicationContext(),"GOT OK FROM SERVER",Toast.LENGTH_LONG).show();
+
+                        final Dialog dialog = new Dialog(HomeActivity.this);
+                        dialog.setContentView(R.layout.select_headline_layout);
+                        dialog.setTitle("Add News");
+                        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                        dialog.show();
+
+                        ListView shlv = (ListView) dialog.findViewById(R.id.headlineSuggestionListView);
+
+                        String[] countryArray = {"India", "Pakistan", "USA", "UK"};
+
+                        ArrayAdapter adapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.listview_textview_layout, countryArray);
+                        shlv.setAdapter(adapter);
+
+
+                        timer.cancel();
+                        timer.purge();
+                    }
+                }
+            });
+
+
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+
+    public void callAsynchronousTask() {
+        timer = new Timer();
+        doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            UpdateHeadline performBackgroundTask = new UpdateHeadline();
+                            // PerformBackgroundTask this class is the class that extends AsynchTask
+                            performBackgroundTask.execute();
+
+                            performBackgroundTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+                            //AsyncTask.Status st = performBackgroundTask.getStatus();
+                            //Toast.makeText(getApplicationContext(),st.toString(),Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 2000); //execute in every 10000 ms
+    }
+
+
+
 }

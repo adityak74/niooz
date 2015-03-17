@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -14,6 +16,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,17 +29,21 @@ import org.json.JSONObject;
 
 public class SplashScreenActivity extends Activity {
 
-    ProgressDialog pDialog1;
+    ProgressBar pBar;
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
     private String th1,th2,th3,th4;
-    private static int SPLASH_TIME_OUT = 500;
+    private static int SPLASH_TIME_OUT = 2500;
+    private static int PROCESSING_TIMEOUT = 1500;
     private boolean failed;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-
+        pBar = (ProgressBar) findViewById(R.id.progressBar3);
+        pBar.setVisibility(View.GONE);
+        pBar.setIndeterminate(true);
+        pBar.getIndeterminateDrawable().setColorFilter(Color.parseColor("#FAFAFA"), PorterDuff.Mode.MULTIPLY);
 
         new Handler().postDelayed(new Runnable() {
 
@@ -47,28 +55,40 @@ public class SplashScreenActivity extends Activity {
                 pref = getSharedPreferences("niooz", MODE_PRIVATE);
                 try {
                     String getStatus = pref.getString("register", null);
-                    Log.d("Register Status",getStatus);
-                    if(getStatus.equals("true")){
+                    Log.d("Register Status", getStatus);
+                    if (getStatus.equals("true")) {
                         new LoadTrendingNews().execute();
-                    }
-                    else {
-                        Log.d("Register Status","Not Registered Moving to Registration");
+                    } else {
+                        Log.d("Register Status", "Not Registered Moving to Registration");
                         Intent i = new Intent(SplashScreenActivity.this, MainActivity.class);
                         startActivity(i);
-                        overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                         // close this activity
                         finish();
                     }
-                }catch (Exception ex){
-                    Log.d("Register Status","Not Registered Moving to Registration");
+                } catch (Exception ex) {
+                    Log.d("Register Status", "Not Registered Moving to Registration");
                     Intent i = new Intent(SplashScreenActivity.this, MainActivity.class);
                     startActivity(i);
-                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     // close this activity
                     finish();
                 }
             }
         }, SPLASH_TIME_OUT);
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pBar.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }, PROCESSING_TIMEOUT);
 
 
 }
@@ -104,6 +124,7 @@ public class SplashScreenActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        /*
                         new AlertDialog.Builder(SplashScreenActivity.this)
                                 .setTitle("Oops!!!")
                                 .setMessage("Make sure you are connected to a reliable internet connection.")
@@ -117,6 +138,13 @@ public class SplashScreenActivity extends Activity {
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
                                 .show();
+                        */
+
+                        Toast.makeText(getApplicationContext(),"No Internet Connection.Ensure you are connected to get Latest News Feeds",Toast.LENGTH_LONG).show();
+                        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                        startActivity(i);
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                        finish();
                     }
                 });
 
