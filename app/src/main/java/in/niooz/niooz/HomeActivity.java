@@ -239,6 +239,9 @@ public class HomeActivity extends ActionBarActivity {
                                         news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
                                         news.setNoOfFollowers(obj.getInt("noOfFollowers"));
                                         news.setFollowing(false);
+                                        news.setLiked(false);
+                                        //get category for color
+                                        //news.setCategory(obj.getString("category"));
 
                                         newsList.add(news);
 
@@ -438,11 +441,12 @@ public class HomeActivity extends ActionBarActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             progressBar.setVisibility(View.VISIBLE);
-
+            /*
             hl1.setVisibility(View.GONE);
             hl2.setVisibility(View.GONE);
             hl3.setVisibility(View.GONE);
             hl4.setVisibility(View.GONE);
+            */
         }
 
         @Override
@@ -485,10 +489,12 @@ public class HomeActivity extends ActionBarActivity {
             progressBar.setVisibility(View.GONE);
             mSwipeRefreshLayout.setRefreshing(false);
 
+            /*
             hl1.setVisibility(View.VISIBLE);
             hl2.setVisibility(View.VISIBLE);
             hl3.setVisibility(View.VISIBLE);
             hl4.setVisibility(View.VISIBLE);
+            */
         }
     }
 
@@ -630,6 +636,9 @@ public class HomeActivity extends ActionBarActivity {
                     Log.d("Error",ex.toString());
                 }
                 break;
+            case R.id.action_category :
+                Intent i = new Intent(HomeActivity.this,CategoryActivity.class);
+                startActivity(i);
         }
 
 

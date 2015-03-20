@@ -141,6 +141,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         Typeface custom_font = Typeface.createFromAsset(getAssets(),
                 "fonts/segoe-ui.ttf");
         //textView.setTypeface(custom_font);
+        authButton.setTypeface(custom_font);
 
         /*
         new Handler().postDelayed(new Runnable() {
@@ -417,13 +418,14 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     public void onPause() {
         super.onPause();
         uiHelper.onPause();
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         uiHelper.onDestroy();
-        finish();
+
     }
 
 
@@ -458,56 +460,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         }
     }
 
-    private void applyBlur() {
-        image.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean onPreDraw() {
-                image.getViewTreeObserver().removeOnPreDrawListener(this);
-                image.buildDrawingCache();
 
-                Bitmap bmp = image.getDrawingCache();
-                blur(bmp, textView);
-                return true;
-            }
-        });
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private void blur(Bitmap bkg, View view) {
-        long startMs = System.currentTimeMillis();
-
-        float radius = 5f;
-
-        Bitmap overlay = Bitmap.createBitmap((int) (view.getMeasuredWidth()),
-                (int) (view.getMeasuredHeight()), Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(overlay);
-
-        canvas.translate(-view.getLeft(), -view.getTop());
-        canvas.drawBitmap(bkg, 0, 0, null);
-
-        RenderScript rs = RenderScript.create(MainActivity.this);
-
-        Allocation overlayAlloc = Allocation.createFromBitmap(
-                rs, overlay);
-
-        ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(
-                rs, overlayAlloc.getElement());
-
-        blur.setInput(overlayAlloc);
-
-        blur.setRadius(radius);
-
-        blur.forEach(overlayAlloc);
-
-        overlayAlloc.copyTo(overlay);
-
-        view.setBackground(new BitmapDrawable(
-                getResources(), overlay));
-
-        rs.destroy();
-        //statusText.setText(System.currentTimeMillis() - startMs + "ms");
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -562,6 +515,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             //String url = TOKEN_VALIDATE_URL + accessToken;
             String resp = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
 
+
+            //get API Access Token
             if(resp.equals("OK"))
             {
                 runOnUiThread(new Runnable() {
@@ -654,6 +609,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             i.putExtra("th4",th4);
             startActivity(i);
             overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+            finish();
         }
 
 

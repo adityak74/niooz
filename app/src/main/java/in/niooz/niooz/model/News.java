@@ -14,6 +14,8 @@ public class News {
     private int articlesSubmitted;
     private int noOfFollowers;
     private boolean following;
+    private String category;
+    private boolean liked;
 
     public News(){
 
@@ -73,5 +75,14 @@ public class News {
     public boolean getFollowing(){ return following;}
 
     public void setFollowing(boolean following){ this.following = following;}
+
+    public void setCategory(String category){ this.category = category; }
+
+    public String getCategory(){ return category; }
+
+    public void setLiked(boolean liked){ this.liked = liked; }
+
+    public boolean getLiked(){ return liked; }
+
 
 }

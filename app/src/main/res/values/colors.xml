@@ -13,4 +13,27 @@
     <color name="list_row_end_color">#BBDEFB</color>
     <color name="list_row_hover_start_color">#ebeef0</color>
     <color name="list_row_hover_end_color">#ebeef0</color>
+
+    <color name="politics_color_glass">#AAb71c1c</color>
+    <color name="sports_color_glass">#AA1976D2</color>
+    <color name="scitech_color_glass">#AA006064</color>
+    <color name="entertainment_color_glass">#AA6A1B9A</color>
+    <color name="business_color_glass">#AAFFA000</color>
+    <color name="news_color_glass">#AA43A047</color>
+
+    <color name="politics_color">#b71c1c</color>
+    <color name="sports_color">#1976D2</color>
+    <color name="scitech_color">#006064</color>
+    <color name="entertainment_color">#6A1B9A</color>
+    <color name="business_color">#FFA000</color>
+    <color name="news_color">#43A047</color>
+
+    <color name="pink_transparent">#aa700d39</color>
+    <color name="green_transparent">#aa375a1f</color>
+    <color name="blue_transparent">#aa293576</color>
+    <color name="red_transparent">#aa7f3907</color>
+    <color name="purple_transparent">#aa432677</color>
+    <color name="holo_red_light_transparent">#aaff4444</color>
+
+
 </resources>

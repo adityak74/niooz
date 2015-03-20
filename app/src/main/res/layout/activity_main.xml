@@ -48,7 +48,7 @@
                     android:id="@+id/introImage0"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:src="@mipmap/ic_launcher_temp" />
+                    android:src="@drawable/logocolor" />
 
             </LinearLayout>
 
@@ -148,6 +148,7 @@
     <com.google.android.gms.common.SignInButton
         android:id="@+id/gplusAuthButton"
         android:layout_width="fill_parent"
+        android:visibility="gone"
         android:layout_height="70dp"
         android:layout_above="@+id/fbAuthButton"
         />

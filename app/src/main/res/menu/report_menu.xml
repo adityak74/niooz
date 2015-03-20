@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="Spam"
+        android:id="@+id/action_spam"
+        android:icon="@drawable/ic_category_action_bar"
+        app:showAsAction="always" />
+    <item
+        android:title="Pornographic"
+        android:id="@+id/action_porn"
+        android:icon="@drawable/ic_category_action_bar"
+        app:showAsAction="always" />
+    <item
+        android:title="Insulting"
+        android:id="@+id/action_insult"
+        android:icon="@drawable/ic_category_action_bar"
+        app:showAsAction="always" />
+    <item
+        android:title="Annoying"
+        android:id="@+id/action_annoy"
+        android:icon="@drawable/ic_category_action_bar"
+        app:showAsAction="always" />
+    <item
+        android:title="Fake News"
+        android:id="@+id/action_fake"
+        android:icon="@drawable/ic_category_action_bar"
+        app:showAsAction="always" />
+    <item
+        android:title="Hate Speech"
+        android:id="@+id/action_hate"
+        android:icon="@drawable/ic_category_action_bar"
+        app:showAsAction="always" />
+    <item
+        android:title="Others"
+        android:id="@+id/action_others"
+        android:icon="@drawable/ic_category_action_bar"
+        app:showAsAction="always" />
+
+
+</menu>
