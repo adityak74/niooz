@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<in.niooz.niooz.NotifyingScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<in.niooz.app.NotifyingScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -15,6 +15,41 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/header_height"
             />
+
+        <LinearLayout
+            android:padding="0dp"
+            android:weightSum="2"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/popularButton"
+                android:layout_margin="0dp"
+                android:padding="0dp"
+                android:layout_weight="1"
+                android:text="Popular"
+                android:background="#039BE5"
+                android:textColor="#fff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+
+
+            <Button
+                android:id="@+id/discoverButton"
+                android:layout_margin="0dp"
+                android:padding="0dp"
+                android:layout_weight="1"
+                android:background="#039BE5"
+                android:textColor="#9E9E9E"
+                android:text="Discover"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
 
         <android.support.v7.widget.CardView
             android:layout_height="wrap_content"
@@ -173,4 +208,4 @@
 
     </LinearLayout>
 
-</in.niooz.niooz.NotifyingScrollView>
+</in.niooz.app.NotifyingScrollView>

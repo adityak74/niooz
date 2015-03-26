@@ -1,4 +1,4 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
 import android.content.Context;
 import android.util.AttributeSet;

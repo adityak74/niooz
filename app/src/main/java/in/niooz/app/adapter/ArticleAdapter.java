@@ -1,4 +1,4 @@
-package in.niooz.niooz.adapter;
+package in.niooz.app.adapter;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -6,25 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.renderscript.Allocation;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,14 +25,11 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 
 import java.util.List;
-import java.util.zip.Inflater;
 
-import in.niooz.niooz.ArticleSourcesActivity;
-import in.niooz.niooz.ArticleWebView;
-import in.niooz.niooz.R;
-import in.niooz.niooz.app.AppController;
-import in.niooz.niooz.model.Article;
-import in.niooz.niooz.model.News;
+import in.niooz.app.ArticleWebView;
+import in.niooz.app.R;
+import in.niooz.app.app.AppController;
+import in.niooz.app.model.Article;
 
 /**
  * Created by aditya on 2/21/15.
@@ -100,7 +90,7 @@ public class ArticleAdapter extends BaseAdapter{
         headlineThumbnail.setImageUrl(article.getHeadlineBackgroundURL(),imageLoader);
 
 
-        headline.setText(article.getHeadline());
+        headline.setText(article.getTitle());
 
         likes.setText(String.valueOf(article.getLikes()));
 

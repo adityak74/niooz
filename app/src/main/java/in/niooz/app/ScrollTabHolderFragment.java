@@ -1,4 +1,4 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
 import android.support.v4.app.Fragment;
 import android.widget.ScrollView;

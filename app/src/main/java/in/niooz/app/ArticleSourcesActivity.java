@@ -1,4 +1,4 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
 import android.content.Intent;
 import android.graphics.Color;

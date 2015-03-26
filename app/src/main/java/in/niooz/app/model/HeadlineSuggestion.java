@@ -1,4 +1,4 @@
-package in.niooz.niooz.model;
+package in.niooz.app.model;
 
 /**
  * Created by aditya on 2/25/15.

@@ -1,6 +1,4 @@
-package in.niooz.niooz.model;
-
-import android.media.Image;
+package in.niooz.app.model;
 
 /**
  * Created by aditya on 2/21/15.
@@ -16,6 +14,7 @@ public class News {
     private boolean following;
     private String category;
     private boolean liked;
+
 
     public News(){
 

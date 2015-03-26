@@ -1,39 +1,23 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
-    import android.annotation.TargetApi;
     import android.app.Activity;
     import android.app.ProgressDialog;
     import android.content.Intent;
     import android.content.IntentSender;
     import android.content.SharedPreferences;
-    import android.content.pm.PackageInfo;
-    import android.content.pm.PackageManager;
-    import android.graphics.Bitmap;
-    import android.graphics.Canvas;
     import android.graphics.Typeface;
-    import android.graphics.drawable.BitmapDrawable;
     import android.os.AsyncTask;
-    import android.os.Build;
-    import android.renderscript.Allocation;
-    import android.renderscript.RenderScript;
-    import android.renderscript.ScriptIntrinsicBlur;
     import android.os.Bundle;
-    import android.util.Base64;
     import android.util.Log;
     import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
     import android.view.MotionEvent;
     import android.view.View;
-    import android.view.ViewGroup;
-    import android.view.ViewTreeObserver;
     import android.view.animation.AccelerateInterpolator;
     import android.view.animation.Animation;
-    import android.view.animation.AnimationUtils;
     import android.view.animation.TranslateAnimation;
     import android.widget.ImageView;
-    import android.widget.LinearLayout;
-    import android.widget.RelativeLayout;
     import android.widget.TextView;
     import android.widget.Toast;
     import android.widget.ViewFlipper;
@@ -59,9 +43,6 @@ import android.view.MenuItem;
     import org.json.JSONObject;
 
     import java.io.IOException;
-    import java.security.MessageDigest;
-    import java.security.NoSuchAlgorithmException;
-    import java.security.Signature;
     import java.util.ArrayList;
     import java.util.Arrays;
     import java.util.List;
@@ -75,7 +56,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private static final int RC_SIGN_IN = 0;
     private static int SPLASH_TIME_OUT = 3000;
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
-    private String TOKEN_VALIDATE_URL = "http://itechnospot.com/temp/validateToken.php";
+    private String TOKEN_VALIDATE_URL = "http://niooz.in/index.php/users/login";
     private TextView textView;
     private UiLifecycleHelper uiHelper;
     private boolean mIntentInProgress;
@@ -350,8 +331,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         mSignInClicked = false;
         //Toast.makeText(this, "User is connected using Google Plus Login!", Toast.LENGTH_LONG).show();
         // Get user's information
-        providerName = "GooglePlus";
-        provider = "GPLUS";
+        providerName = "google";
+        provider = "google";
         updateUI(true);
         // Update the UI after signin
         //updateUI(true);
@@ -442,11 +423,11 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
             //Toast.makeText(getApplicationContext(),session.getAccessToken(),Toast.LENGTH_LONG).show();
             updateUI(true);
-            providerName = "Facebook";
-            provider = "FB";
+            providerName = "facebook";
+            provider = "facebook";
             accessToken = session.getAccessToken();
             if(sessioncount==1) {
-                Log.d("Register Status", "Logged in...");
+                Log.d("Register Status", "Logged in... access token" + accessToken);
                 new ValidateAccessToken().execute();
                 sessioncount=0;
                 Log.d("Register Status","FB session activity called validate token and sessioncount = " + sessioncount);
@@ -512,13 +493,26 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(1);
             nameValuePair.add(new BasicNameValuePair("access_token", accessToken));
             nameValuePair.add(new BasicNameValuePair("provider", providerName));
-            //String url = TOKEN_VALIDATE_URL + accessToken;
-            String resp = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
+
+            String api_access_token = sh.makeServiceCall(TOKEN_VALIDATE_URL,ServiceHandler.POST,nameValuePair);
 
 
-            //get API Access Token
-            if(resp.equals("OK"))
+            //get API Access Token and store in pref
+            if(api_access_token.length()!=0)
             {
+
+                try{
+                    SharedPreferences pref;
+                    pref = getSharedPreferences("niooz",MODE_PRIVATE);
+                    SharedPreferences.Editor edit = pref.edit();
+                    //provider = google Google Plus and provider = facebook Facebook
+                    edit.putString("api_access_token",api_access_token);
+                    edit.apply();
+                    Log.d("Register Status","Access Token Stored token is " + api_access_token);
+                }catch (Exception ex){
+                    Log.d("Register Status","Registered but not saved SharedPrefs Error");
+                }
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -608,7 +602,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             i.putExtra("th3",th3);
             i.putExtra("th4",th4);
             startActivity(i);
-            overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+            overridePendingTransition(R.anim.grow_from_center,R.anim.decend_in_center);
             finish();
         }
 

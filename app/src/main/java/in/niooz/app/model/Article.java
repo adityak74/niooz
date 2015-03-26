@@ -1,4 +1,4 @@
-package in.niooz.niooz.model;
+package in.niooz.app.model;
 
 /**
  * Created by aditya on 2/25/15.
@@ -6,17 +6,19 @@ package in.niooz.niooz.model;
 public class Article {
 
     private int articleId;
-    private String headline;
+    private String title;
     private String headlineBackgroundURL;
     private int likes;
     private int views;
     private int timesSubmitted;
     private int noOfFollowers;
     private int noOfShares;
+    private String articleUrl;
+
 
     public Article(int articleId, String headline, String headlineBackgroundURL, int likes, int views, int timesSubmitted, int noOfFollowers, int noOfShares) {
         this.articleId = articleId;
-        this.headline = headline;
+        this.title = headline;
         this.headlineBackgroundURL = headlineBackgroundURL;
         this.likes = likes;
         this.views = views;
@@ -24,6 +26,11 @@ public class Article {
         this.noOfFollowers = noOfFollowers;
         this.noOfShares = noOfShares;
     }
+
+
+    public String getArticleUrl(){ return articleUrl; }
+
+    public void setArticleUrl(String url){ this.articleUrl = url; }
 
     public int getArticleId() {
         return articleId;
@@ -33,12 +40,12 @@ public class Article {
         this.articleId = articleId;
     }
 
-    public String getHeadline() {
-        return headline;
+    public String getTitle() {
+        return title;
     }
 
-    public void setHeadline(String headline) {
-        this.headline = headline;
+    public void setTitle(String headline) {
+        this.title = headline;
     }
 
     public String getHeadlineBackgroundURL() {

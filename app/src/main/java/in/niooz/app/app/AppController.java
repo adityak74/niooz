@@ -1,4 +1,4 @@
-package in.niooz.niooz.app;
+package in.niooz.app.app;
 
 import android.app.Application;
 import android.text.TextUtils;
@@ -8,7 +8,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
-import in.niooz.niooz.util.LruBitmapCache;
+import in.niooz.app.util.LruBitmapCache;
 
 public class AppController extends Application {
 

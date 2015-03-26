@@ -1,7 +1,8 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -29,6 +31,8 @@ public class ScrollViewFragment extends ScrollTabHolderFragment implements Notif
     TextView textEmail;
     LinearLayout layout1;
     LinearLayout layout2;
+    Button popularBt,discoverBt;
+
 
     ImageView titleImage;
 
@@ -63,10 +67,30 @@ public class ScrollViewFragment extends ScrollTabHolderFragment implements Notif
         titleDescription =(TextView) v.findViewById(R.id.titleDescription);
         titleShortDescription = (TextView) v.findViewById(R.id.titleShortDescription);
         title = (TextView) v.findViewById(R.id.title);
+        popularBt = (Button) v.findViewById(R.id.popularButton);
+        discoverBt = (Button) v.findViewById(R.id.discoverButton);
 
         textContact = (TextView) v.findViewById(R.id.textContact);
         textEmail = (TextView) v.findViewById(R.id.textEmail);
         textSendEmail = (TextView) v.findViewById(R.id.textSendEmail);
+
+
+
+        popularBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popularBt.setTextColor(Color.WHITE);
+                discoverBt.setTextColor(Color.GRAY);
+            }
+        });
+
+        discoverBt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popularBt.setTextColor(Color.GRAY);
+                discoverBt.setTextColor(Color.WHITE);
+            }
+        });
 
 
         textSendEmail.setOnClickListener(new View.OnClickListener() {

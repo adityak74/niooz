@@ -1,30 +1,16 @@
-package in.niooz.niooz.adapter;
+package in.niooz.app.adapter;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.renderscript.Allocation;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -42,13 +28,12 @@ import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
-import in.niooz.niooz.ArticleSourcesActivity;
-import in.niooz.niooz.R;
-import in.niooz.niooz.ServiceHandler;
-import in.niooz.niooz.app.AppController;
-import in.niooz.niooz.model.News;
+import in.niooz.app.ArticleSourcesActivity;
+import in.niooz.app.R;
+import in.niooz.app.ServiceHandler;
+import in.niooz.app.app.AppController;
+import in.niooz.app.model.News;
 
 /**
  * Created by aditya on 2/21/15.
@@ -64,6 +49,7 @@ public class NewsAdapter extends BaseAdapter{
     private Button likeButton;
     private int likes;
     private ViewHolder holder;
+    ViewHolder holder1;
 
 
     public NewsAdapter(Activity activity,List<News> newsItems){
@@ -94,6 +80,7 @@ public class NewsAdapter extends BaseAdapter{
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         final int _position = position;
+
         if(layoutInflater == null){
             layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
@@ -107,7 +94,7 @@ public class NewsAdapter extends BaseAdapter{
             holder.likeBt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ViewHolder holder1 = (ViewHolder)v.getTag();
+                    holder1 = (ViewHolder)v.getTag();
                     int likes = Integer.parseInt(holder1.likeBt.getText().toString());
                     //Toast.makeText(activity,String.valueOf(newsItems.get(position).getLikes()),Toast.LENGTH_LONG).show();
 
@@ -142,6 +129,7 @@ public class NewsAdapter extends BaseAdapter{
         final TextView noofviewstv = (TextView) convertView.findViewById(R.id.noOfViewsTv);
         final TextView noofarticlestv = (TextView) convertView.findViewById(R.id.noOfArticlesTv);
         final TextView nooffollowerstv = (TextView) convertView.findViewById(R.id.noOfFollowersTv);
+        final Button likeBt = (Button) convertView.findViewById(R.id.likes);
 
 
 
@@ -162,32 +150,46 @@ public class NewsAdapter extends BaseAdapter{
 
         nooffollowerstv.setText(String.valueOf(n.getNoOfFollowers()));
 
+        //set like button color and status
+        if(n.getLiked()) {
+            likeBt.setBackground(activity.getResources().getDrawable(R.mipmap.ic_star_on));
+            //new likeHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }else{
+            likeBt.setBackground(activity.getResources().getDrawable(R.mipmap.ic_star_icon));
+            //new likeHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
 
 
         /*set category wise color*/
-        /*
+
         switch (n.getCategory()){
-            case "politics" : glassLayer.setImageDrawable(new ColorDrawable(R.color.politics_color_glass));
-                              triangleImg.setImageDrawable(new ColorDrawable(R.color.politics_color));
+            case "politics" : //glassLayer.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.politics_color_glass)));
+                              triangleImg.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.politics_color)));
+
                               break;
-            case "sports"   : glassLayer.setImageDrawable(new ColorDrawable(R.color.sports_color_glass));
-                              triangleImg.setImageDrawable(new ColorDrawable(R.color.sports_color));
+            case "sport"   : //glassLayer.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.sports_color_glass)));
+                              triangleImg.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.sports_color)));
+
                               break;
-            case "scitech"   : glassLayer.setImageDrawable(new ColorDrawable(R.color.scitech_color_glass));
-                               triangleImg.setImageDrawable(new ColorDrawable(R.color.scitech_color));
+            case "scitech"   : //glassLayer.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.scitech_color_glass)));
+                               triangleImg.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.scitech_color)));
+
                                break;
-            case "entertainment"   : glassLayer.setImageDrawable(new ColorDrawable(R.color.entertainment_color_glass));
-                                     triangleImg.setImageDrawable(new ColorDrawable(R.color.entertainment_color));
+            case "entertainment"   : //glassLayer.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.entertainment_color_glass)));
+                                     triangleImg.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.entertainment_color_glass)));
+
                                      break;
-            case "business"   : glassLayer.setImageDrawable(new ColorDrawable(R.color.business_color_glass));
-                                triangleImg.setImageDrawable(new ColorDrawable(R.color.business_color));
+            case "business"   : //glassLayer.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.business_color_glass)));
+                                triangleImg.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.business_color)));
+
                                 break;
-            case "news"   : glassLayer.setImageDrawable(new ColorDrawable(R.color.news_color_glass));
-                            triangleImg.setImageDrawable(new ColorDrawable(R.color.news_color));
+            case "news"   : //glassLayer.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.news_color_glass)));
+                            triangleImg.setImageDrawable(new ColorDrawable(activity.getResources().getColor(R.color.news_color)));
+
                             break;
 
         }
-        */
+
 
 
         clickView.setOnClickListener(new View.OnClickListener() {
@@ -236,30 +238,30 @@ public class NewsAdapter extends BaseAdapter{
                             case R.id.action_report:
                                 Toast.makeText(activity, "Reporting " + headline.getText(), Toast.LENGTH_LONG).show();
 
-                                PopupMenu reportMenu = new PopupMenu(activity,v);
+                                PopupMenu reportMenu = new PopupMenu(activity, v);
 
                                 reportMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                     @Override
                                     public boolean onMenuItemClick(MenuItem item) {
 
 
-                                        switch (item.getItemId()){
+                                        switch (item.getItemId()) {
 
-                                            case R.id.action_spam : //new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"spam");
-                                                                    break;
-                                            case R.id.action_porn : //new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"porn");
-                                                                    break;
-                                            case R.id.action_insult :
-                                                                    //new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"insult");
-                                                                    break;
-                                            case R.id.action_annoy ://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"annoy");
-                                                                    break;
-                                            case R.id.action_fake ://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"fake");
-                                                                    break;
-                                            case R.id.action_hate ://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"hate");
-                                                                    break;
-                                            case R.id.action_others ://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"others");
-                                                                    break;
+                                            case R.id.action_spam: //new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"spam");
+                                                break;
+                                            case R.id.action_porn: //new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"porn");
+                                                break;
+                                            case R.id.action_insult:
+                                                //new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"insult");
+                                                break;
+                                            case R.id.action_annoy://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"annoy");
+                                                break;
+                                            case R.id.action_fake://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"fake");
+                                                break;
+                                            case R.id.action_hate://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"hate");
+                                                break;
+                                            case R.id.action_others://new reportHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"others");
+                                                break;
                                         }
                                         return true;
                                     }
@@ -267,11 +269,8 @@ public class NewsAdapter extends BaseAdapter{
                                 });
 
 
-
                                 reportMenu.inflate(R.menu.report_menu);
                                 reportMenu.show();
-
-
 
 
                                 break;

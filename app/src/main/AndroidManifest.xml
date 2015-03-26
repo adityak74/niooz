@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="in.niooz.niooz" >
+    package="in.niooz.app" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".app.AppController"
+        android:name="in.niooz.app.app.AppController"
         android:allowBackup="true"
 
         android:icon="@mipmap/ic_launcher_temp"
@@ -22,14 +22,14 @@
             android:value="@string/fb_app_id" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="in.niooz.app.MainActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
             android:theme="@style/HomeActivityTheme"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:name=".HomeActivity"
+            android:name="in.niooz.app.HomeActivity"
             android:label="@string/title_activity_home" >
         </activity>
         <activity
@@ -37,7 +37,7 @@
             android:label="@string/title_facebook_login" >
         </activity>
         <activity
-            android:name=".SplashScreenActivity"
+            android:name="in.niooz.app.SplashScreenActivity"
             android:label="@string/title_activity_splash_screen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,15 +46,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AddNews"
+            android:name="in.niooz.app.AddNews"
             android:label="@string/title_activity_add_news"
-            android:parentActivityName=".HomeActivity" >
+            android:parentActivityName="in.niooz.app.HomeActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="in.niooz.niooz.HomeActivity" />
+                android:value="in.niooz.app.HomeActivity" />
         </activity>
         <activity
-            android:name=".AddNewsReceive"
+            android:name="in.niooz.app.AddNewsReceive"
             android:label="@string/title_activity_add_news_receive" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -65,23 +65,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ArticleWebView"
+            android:name="in.niooz.app.ArticleWebView"
             android:label="@string/title_activity_article_web_view"
-            android:parentActivityName=".ArticleSourcesActivity" >
+            android:parentActivityName="in.niooz.app.ArticleSourcesActivity" >
 
         </activity>
         <activity
-            android:name=".ArticleSourcesActivity"
+            android:name="in.niooz.app.ArticleSourcesActivity"
             android:label="@string/title_activity_article_sources"
-            android:parentActivityName=".HomeActivity">
+            android:parentActivityName="in.niooz.app.HomeActivity">
 
         </activity>
 
-        <activity android:name=".CategoryActivity"
+        <activity android:name="in.niooz.app.CategoryActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/TransparentTheme"
             android:label="Categories"
-            android:parentActivityName=".HomeActivity">
+            android:parentActivityName="in.niooz.app.HomeActivity">
 
         </activity>
 

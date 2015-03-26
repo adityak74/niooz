@@ -1,6 +1,5 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -10,39 +9,26 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import java.net.URL;
+import android.widget.EditText;
 
 
-public class AddNewsReceive extends ActionBarActivity {
+public class AddNews extends ActionBarActivity {
 
     ActionBarActivity actionBarActivity = this;
     private MenuItem menuItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_news_receive);
+        setContentView(R.layout.activity_add_news);
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Add You News");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
 
-        Intent i = getIntent();
-        String action = i.getAction();
-        String type = i.getType();
-
-        if(Intent.ACTION_SEND.equals(action) && type != null)
-        {
-            if("text/plain".equals(type))
-            {
-                String getMessage = i.getStringExtra(Intent.EXTRA_TEXT);
-                Toast.makeText(getApplicationContext(), getMessage, Toast.LENGTH_LONG).show();
-            }
-            else
-            {
-                Toast.makeText(getApplicationContext(), "Error in type", Toast.LENGTH_LONG).show();
-            }
-        }
+        ///actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP|ActionBar.DISPLAY_SHOW_TITLE|ActionBar.DISPLAY_SHOW_CUSTOM);
+        EditText urlInput = (EditText) findViewById(R.id.urlInput);
+        urlInput.setSelection(urlInput.getText().length());
 
     }
 
@@ -50,7 +36,7 @@ public class AddNewsReceive extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_add_news_receive, menu);
+        getMenuInflater().inflate(R.menu.menu_add_news, menu);
         return true;
     }
 
@@ -95,5 +81,4 @@ public class AddNewsReceive extends ActionBarActivity {
             menuItem.setActionView(null);
         }
     }
-
 }

@@ -1,4 +1,4 @@
-package in.niooz.niooz.util;
+package in.niooz.app.util;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,13 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.android.volley.toolbox.ImageLoader;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import in.niooz.niooz.app.AppController;
-import in.niooz.niooz.model.News;
+import in.niooz.app.model.News;
 
 /**
  * Created by aditya on 3/12/15.

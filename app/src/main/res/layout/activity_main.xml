@@ -16,7 +16,7 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true">
 
-        <in.niooz.niooz.AViewFlipper
+        <in.niooz.app.AViewFlipper
             android:id="@+id/view_flipper"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -141,7 +141,7 @@
             </LinearLayout>
 
 
-        </in.niooz.niooz.AViewFlipper>
+        </in.niooz.app.AViewFlipper>
     </RelativeLayout>
 
 

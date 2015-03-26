@@ -1,4 +1,4 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
 /**
  * Created by aditya on 2/1/15.
@@ -19,7 +19,6 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
 import java.util.List;
 
 public class ServiceHandler {

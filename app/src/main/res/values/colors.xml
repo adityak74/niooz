@@ -5,6 +5,8 @@
     <color name="blue">#000099</color>
     <color name="yellow">#FFEB3B</color>
 
+    <color name="app_color">#9A0000</color>
+
     <color name="genre">#666666</color>
     <color name="actionBarColor">#A82400</color>
     <color name="year">#888888</color>

@@ -1,4 +1,4 @@
-package in.niooz.niooz;
+package in.niooz.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,13 +8,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteCantOpenDatabaseException;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,21 +18,21 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.facebook.Session;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
@@ -47,14 +43,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import in.niooz.niooz.app.AppController;
-import in.niooz.niooz.adapter.NewsAdapter;
-import in.niooz.niooz.model.News;
-import in.niooz.niooz.util.DataBaseHandler;
+import in.niooz.app.app.AppController;
+import in.niooz.app.adapter.NewsAdapter;
+import in.niooz.app.model.News;
+import in.niooz.app.util.DataBaseHandler;
 
 
 public class HomeActivity extends ActionBarActivity {
@@ -72,7 +70,7 @@ public class HomeActivity extends ActionBarActivity {
     private NewsAdapter adapter;
     private String TAG = "HomeActivity";
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
-    private String BASE_URL = "http://www.itechnospot.com/api/news.json";
+    private String BASE_URL = "http://www.itechnospot.com/api/newstest.php";
     String th1,th2,th3,th4;
     private GoogleApiClient mGoogleApiClient;
     private int pageToLoad = 2;
@@ -83,6 +81,8 @@ public class HomeActivity extends ActionBarActivity {
     private ProgressBar progressBar;
     private LayoutInflater inflater;
     private boolean couldNotLoadNews = false;
+    private String api_access_token;
+    private int i = 0;
 
 
 
@@ -92,12 +92,7 @@ public class HomeActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        /*
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
-        actionBar.setTitle("Nz");
-        actionBar.setLogo(R.drawable.ic_home);
-        */
+
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
@@ -106,9 +101,16 @@ public class HomeActivity extends ActionBarActivity {
 
 
 
+        //get api access token for further requests
 
-        //Log.d("Home",getIntent().getExtras().getString("th1"));
-
+        try {
+            SharedPreferences pref;
+            pref = getSharedPreferences("niooz", MODE_PRIVATE);
+            api_access_token = pref.getString("api_access_token", null);
+            Log.d("Api_access_token", api_access_token);
+        } catch (Exception ex) {
+            Log.d("Api_access_token","Not found");
+        }
 
         imageButton = (ImageButton) findViewById(R.id.imgBt);
         imageButton.setOnClickListener(new View.OnClickListener() {
@@ -218,37 +220,51 @@ public class HomeActivity extends ActionBarActivity {
                 adapter = new NewsAdapter(getActivity(),newsList);
                 newsListView.setAdapter(adapter);
 
-                final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
-                        new Response.Listener<JSONArray>() {
+                Map<String, String> params = new HashMap<>();
+                params.put("api_access_token", api_access_token);
+                Log.d("Api_access_token",api_access_token);
+
+
+                final CustomRequest newsReq = new CustomRequest(Request.Method.POST,BASE_URL,params,
+                        new Response.Listener<JSONObject>() {
                             @Override
-                            public void onResponse(JSONArray response) {
+                            public void onResponse(JSONObject response) {
                                 Log.d(TAG, response.toString());
                                 hidePDialog();
+                                Log.d("Api_access_token",response.toString());
 
-                                // Parsing json
-                                for (int i = 0; i < response.length(); i++) {
-                                    try {
 
-                                        JSONObject obj = response.getJSONObject(i);
+
+                                try {
+                                    String next_page_url = response.getString("next_page_url");
+                                    JSONArray headlines = response.getJSONArray("headlines");
+
+                                    // Parsing json
+                                    for (i = 0; i < headlines.length(); i++) {
+
+
+                                        JSONObject obj = headlines.getJSONObject(i);
                                         News news = new News();
                                         news.setId(Integer.parseInt(obj.getString("id")));
-                                        news.setHeadlineBackgroundURL(obj.getString("headlineBackURL"));
-                                        news.setHeadline(obj.getString("headline"));
-                                        news.setLikes(obj.getInt("likes"));
-                                        news.setViews(obj.getInt("views"));
-                                        news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
-                                        news.setNoOfFollowers(obj.getInt("noOfFollowers"));
+                                        news.setHeadlineBackgroundURL(obj.getString("image"));
+                                        news.setHeadline(obj.getString("title"));
+                                        news.setLikes(Integer.parseInt(obj.getString("likes_count")));
+                                        news.setViews(obj.getInt("report_count"));
+                                        news.setArticlesSubmitted(Integer.parseInt(obj.getString("submission_count")));
+                                        news.setNoOfFollowers(Integer.parseInt(obj.getString("sources_count")));
                                         news.setFollowing(false);
-                                        news.setLiked(false);
+                                        news.setLiked(Boolean.parseBoolean(obj.getString("liked")));
                                         //get category for color
-                                        //news.setCategory(obj.getString("category"));
+                                        news.setCategory(obj.getString("category"));
 
                                         newsList.add(news);
 
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
 
+                                    }
+                                }catch (JSONException e) {
+                                    Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_LONG).show();
+                                    Log.d("Api_access_token","Parse Error");
+                                    e.printStackTrace();
                                 }
 
                                 // notifying list adapter about data changes
@@ -257,25 +273,13 @@ public class HomeActivity extends ActionBarActivity {
                                 addNewsToDatabase(newsList);
                                 couldNotLoadNews = true;
                             }
-                        }, new Response.ErrorListener() {
+                        },
+                    new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        VolleyLog.d(TAG, "Error: " + error.getMessage());
+                        Log.d("Api_access_token", "Error: " + error.getMessage());
+                        Toast.makeText(getApplicationContext(), error.toString(),Toast.LENGTH_LONG).show();
                         hidePDialog();
-                /*
-                new AlertDialog.Builder(HomeActivity.this)
-                        .setTitle("Oops!!!")
-                        .setMessage("Couldn't load News.Maybe no Internet connection or the link is down.Try restarting the application.")
-                        .setCancelable(true)
-                        .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                finish();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-                        */
 
                         View errorView = inflater.inflate(R.layout.error_msg,null);
                         TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
@@ -288,14 +292,19 @@ public class HomeActivity extends ActionBarActivity {
                         }
 
                     }
+
                 });
+
                 AppController.getInstance().addToRequestQueue(newsReq);
 
                 //mSwipeRefreshLayout.setRefreshing(false);
                 new LoadTrendingNews().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
+
+
         });
 
+        /*
         newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -319,6 +328,7 @@ public class HomeActivity extends ActionBarActivity {
 
             }
         });
+        */
 
     }
 
