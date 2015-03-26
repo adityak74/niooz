@@ -334,76 +334,79 @@ public class HomeActivity extends ActionBarActivity {
 
     public boolean setupNews(){
 
-        final JsonArrayRequest newsReq = new JsonArrayRequest(BASE_URL,
-                new Response.Listener<JSONArray>() {
+        Map<String, String> params = new HashMap<>();
+        params.put("api_access_token", api_access_token);
+        Log.d("Api_access_token",api_access_token);
+
+        final CustomRequest newsReq = new CustomRequest(Request.Method.POST,BASE_URL,params,
+                new Response.Listener<JSONObject>() {
                     @Override
-                    public void onResponse(JSONArray response) {
+                    public void onResponse(JSONObject response) {
                         Log.d(TAG, response.toString());
                         hidePDialog();
+                        Log.d("Api_access_token",response.toString());
 
-                        // Parsing json
-                        for (int i = 0; i < response.length(); i++) {
-                            try {
 
-                                JSONObject obj = response.getJSONObject(i);
+
+                        try {
+                            String next_page_url = response.getString("next_page_url");
+                            JSONArray headlines = response.getJSONArray("headlines");
+
+                            // Parsing json
+                            for (i = 0; i < headlines.length(); i++) {
+
+
+                                JSONObject obj = headlines.getJSONObject(i);
                                 News news = new News();
                                 news.setId(Integer.parseInt(obj.getString("id")));
-                                news.setHeadlineBackgroundURL(obj.getString("headlineBackURL"));
-                                news.setHeadline(obj.getString("headline"));
-                                news.setLikes(obj.getInt("likes"));
-                                news.setViews(obj.getInt("views"));
-                                news.setArticlesSubmitted(obj.getInt("articlesSubmitted"));
-                                news.setNoOfFollowers(obj.getInt("noOfFollowers"));
+                                news.setHeadlineBackgroundURL(obj.getString("image"));
+                                news.setHeadline(obj.getString("title"));
+                                news.setLikes(Integer.parseInt(obj.getString("likes_count")));
+                                news.setViews(obj.getInt("report_count"));
+                                news.setArticlesSubmitted(Integer.parseInt(obj.getString("submission_count")));
+                                news.setNoOfFollowers(Integer.parseInt(obj.getString("sources_count")));
                                 news.setFollowing(false);
+                                news.setLiked(Boolean.parseBoolean(obj.getString("liked")));
+                                //get category for color
+                                news.setCategory(obj.getString("category"));
 
                                 newsList.add(news);
-                                dataBaseHandler.addNewsItem(news);
 
 
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-
+                        }catch (JSONException e) {
+                            Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_LONG).show();
+                            Log.d("Api_access_token","Parse Error");
+                            e.printStackTrace();
                         }
-
-
-                        //Toast.makeText(getApplicationContext(),String.valueOf(newsList.size()),Toast.LENGTH_LONG).show();
-                        addNewsToDatabase(newsList);
 
                         // notifying list adapter about data changes
                         // so that it renders the list view with updated data
                         adapter.notifyDataSetChanged();
+                        addNewsToDatabase(newsList);
+                        couldNotLoadNews = true;
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("Api_access_token", "Error: " + error.getMessage());
+                        Toast.makeText(getApplicationContext(), error.toString(),Toast.LENGTH_LONG).show();
+                        hidePDialog();
+
+                        View errorView = inflater.inflate(R.layout.error_msg,null);
+                        TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
+                        errTv.setText("Couldn't load News.");
+
+                        //newsListView.removeFooterView(footer);
+                        if(!couldNotLoadNews) {
+                            newsListView.addFooterView(errorView);
+                            couldNotLoadNews = true;
+                        }
 
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d(TAG, "Error: " + error.getMessage());
-                hidePDialog();
-                /*
-                new AlertDialog.Builder(HomeActivity.this)
-                        .setTitle("Oops!!!")
-                        .setMessage("Couldn't load News.Maybe no Internet connection or the link is down.Try restarting the application.")
-                        .setCancelable(true)
-                        .setNeutralButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                finish();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-                        */
 
-                View errorView = inflater.inflate(R.layout.error_msg,null);
-                TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
-                errTv.setText("Couldn't load News.");
-
-                //newsListView.removeFooterView(footer);
-                newsListView.addFooterView(errorView);
-
-            }
-        });
+                });
         AppController.getInstance().addToRequestQueue(newsReq);
         return true;
     }
