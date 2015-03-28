@@ -30,13 +30,11 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.facebook.Session;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,10 +47,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
+
 import in.niooz.app.app.AppController;
 import in.niooz.app.adapter.NewsAdapter;
 import in.niooz.app.model.News;
 import in.niooz.app.util.DataBaseHandler;
+
 
 
 public class HomeActivity extends ActionBarActivity {
