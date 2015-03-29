@@ -3,42 +3,68 @@ package in.niooz.app;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
+import android.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 
-public class AddNews extends ActionBarActivity {
+public class AddNews extends Fragment {
 
-    ActionBarActivity actionBarActivity = this;
+
+    public static final String ARG_PAGE = "page";
+    private FragmentActivity fa;
+    private int mPageNumber;
     private MenuItem menuItem;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_news);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Add You News");
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#A82400")));
-
-        ///actionBar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP|ActionBar.DISPLAY_SHOW_TITLE|ActionBar.DISPLAY_SHOW_CUSTOM);
-        EditText urlInput = (EditText) findViewById(R.id.urlInput);
-        urlInput.setSelection(urlInput.getText().length());
-
+        setHasOptionsMenu(true);
     }
-
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_add_news, menu);
-        return true;
+    public void onActivityCreated(Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        super.onActivityCreated(savedInstanceState);
     }
+
+    public static AddNews create(int pageNumber) {
+        AddNews fragment = new AddNews();
+        Bundle args = new Bundle();
+        args.putInt(ARG_PAGE, pageNumber);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        fa = (FragmentActivity)super.getActivity();
+        ViewGroup fl = (ViewGroup) inflater.inflate(R.layout.activity_add_news, container, false);
+
+
+        return fl;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        fa.getMenuInflater().inflate(R.menu.menu_add_news, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -54,7 +80,7 @@ public class AddNews extends ActionBarActivity {
                 task.execute("test");
                 break;
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+
                 break;
             default:
                 break;

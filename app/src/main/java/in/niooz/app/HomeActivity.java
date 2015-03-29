@@ -10,17 +10,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -56,9 +60,13 @@ import in.niooz.app.util.DataBaseHandler;
 
 
 
-public class HomeActivity extends ActionBarActivity {
+public class HomeActivity extends Fragment {
 
 
+    public static final String ARG_PAGE = "page";
+    private int mPageNumber;
+    private FrameLayout fl;
+    private FragmentActivity fa;
     private Timer timer;
     private Handler handler = new Handler();
     private TimerTask doAsynchronousTask;
@@ -80,22 +88,39 @@ public class HomeActivity extends ActionBarActivity {
     private DataBaseHandler dataBaseHandler;
     private View v;
     private ProgressBar progressBar;
-    private LayoutInflater inflater;
+    private LayoutInflater inflater1;
     private boolean couldNotLoadNews = false;
     private String api_access_token;
     private int i = 0;
 
-
+    public static HomeActivity create(int pageNumber) {
+        HomeActivity fragment = new HomeActivity();
+        Bundle args = new Bundle();
+        args.putInt(ARG_PAGE, pageNumber);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        mPageNumber = getArguments().getInt(ARG_PAGE);
+        setHasOptionsMenu(true);
+    }
 
+    public int getPageNumber() {
+        return mPageNumber;
+    }
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        fa = (FragmentActivity)super.getActivity();
+        ViewGroup fl = (ViewGroup) inflater.inflate(R.layout.activity_home, container, false);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) fl.findViewById(R.id.swipe);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange,R.color.green,R.color.blue);
 
         mSwipeRefreshLayout.canChildScrollUp();
@@ -106,14 +131,14 @@ public class HomeActivity extends ActionBarActivity {
 
         try {
             SharedPreferences pref;
-            pref = getSharedPreferences("niooz", MODE_PRIVATE);
+            pref = fa.getSharedPreferences("niooz", fa.MODE_PRIVATE);
             api_access_token = pref.getString("api_access_token", null);
             Log.d("Api_access_token", api_access_token);
         } catch (Exception ex) {
             Log.d("Api_access_token","Not found");
         }
 
-        imageButton = (ImageButton) findViewById(R.id.imgBt);
+        imageButton = (ImageButton) fl.findViewById(R.id.imgBt);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,7 +150,7 @@ public class HomeActivity extends ActionBarActivity {
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                 */
 
-                final Dialog dialog = new Dialog(HomeActivity.this);
+                final Dialog dialog = new Dialog(getActivity());
                 dialog.setContentView(R.layout.activity_add_news);
                 dialog.setTitle("Add News");
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
@@ -138,7 +163,7 @@ public class HomeActivity extends ActionBarActivity {
                 submitBt.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(getApplicationContext(),"Request for Submit",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),"Request for Submit",Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
                         callAsynchronousTask();
                     }
@@ -148,9 +173,9 @@ public class HomeActivity extends ActionBarActivity {
         });
 
 
-        inflater = (LayoutInflater)getApplicationContext().getSystemService
+        inflater1 = (LayoutInflater)getActivity().getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
-        v = inflater.inflate(R.layout.news_home_header,null);
+        v = inflater1.inflate(R.layout.news_home_header,null);
 
 
 
@@ -163,17 +188,17 @@ public class HomeActivity extends ActionBarActivity {
 
 
         try {
-            hl1.setText(getIntent().getExtras().getString("th1"));
-            hl2.setText(getIntent().getExtras().getString("th2"));
-            hl3.setText(getIntent().getExtras().getString("th3"));
-            hl4.setText(getIntent().getExtras().getString("th4"));
+            hl1.setText(fa.getIntent().getExtras().getString("th1"));
+            hl2.setText(fa.getIntent().getExtras().getString("th2"));
+            hl3.setText(fa.getIntent().getExtras().getString("th3"));
+            hl4.setText(fa.getIntent().getExtras().getString("th4"));
         }catch (Exception ex)
         {
             new LoadTrendingNews().execute();
         }
 
 
-        newsListView = (ParallaxListView) findViewById(R.id.news_list_view);
+        newsListView = (ParallaxListView) fl.findViewById(R.id.news_list_view);
         newsListView.addParallaxedHeaderView(v);
         footer = inflater.inflate(R.layout.news_item_footer,null);
         //newsListView.addFooterView(footer);
@@ -181,18 +206,18 @@ public class HomeActivity extends ActionBarActivity {
         newsListView.setAdapter(adapter);
 
 
-        pDialog = new ProgressDialog(getActivity());
+        pDialog = new ProgressDialog(fa);
         // Showing progress dialog before making http request
         //pDialog.setMessage("Loading...");
         //pDialog.show();
 
-        dataBaseHandler = new DataBaseHandler(this);
+        dataBaseHandler = new DataBaseHandler(getActivity());
 
         try{
             if(dataBaseHandler.getNewsCount() > 0)
             {
                 List<News> tempnewslist = dataBaseHandler.getAllNews();
-                adapter = new NewsAdapter(this,tempnewslist);
+                adapter = new NewsAdapter(getActivity(),tempnewslist);
                 newsListView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
                 Log.d("DBSTORAGE","Retrieved from Database");
@@ -263,7 +288,7 @@ public class HomeActivity extends ActionBarActivity {
 
                                     }
                                 }catch (JSONException e) {
-                                    Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(),e.toString(),Toast.LENGTH_LONG).show();
                                     Log.d("Api_access_token","Parse Error");
                                     e.printStackTrace();
                                 }
@@ -275,26 +300,26 @@ public class HomeActivity extends ActionBarActivity {
                                 couldNotLoadNews = true;
                             }
                         },
-                    new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("Api_access_token", "Error: " + error.getMessage());
-                        Toast.makeText(getApplicationContext(), error.toString(),Toast.LENGTH_LONG).show();
-                        hidePDialog();
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.d("Api_access_token", "Error: " + error.getMessage());
+                                Toast.makeText(getActivity(), error.toString(),Toast.LENGTH_LONG).show();
+                                hidePDialog();
 
-                        View errorView = inflater.inflate(R.layout.error_msg,null);
-                        TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
-                        errTv.setText("Couldn't load News.");
+                                View errorView = inflater1.inflate(R.layout.error_msg,null);
+                                TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
+                                errTv.setText("Couldn't load News.");
 
-                        //newsListView.removeFooterView(footer);
-                        if(!couldNotLoadNews) {
-                            newsListView.addFooterView(errorView);
-                            couldNotLoadNews = true;
-                        }
+                                //newsListView.removeFooterView(footer);
+                                if(!couldNotLoadNews) {
+                                    newsListView.addFooterView(errorView);
+                                    couldNotLoadNews = true;
+                                }
 
-                    }
+                            }
 
-                });
+                        });
 
                 AppController.getInstance().addToRequestQueue(newsReq);
 
@@ -331,7 +356,11 @@ public class HomeActivity extends ActionBarActivity {
         });
         */
 
+        return fl;
     }
+
+
+
 
     public boolean setupNews(){
 
@@ -376,7 +405,7 @@ public class HomeActivity extends ActionBarActivity {
 
                             }
                         }catch (JSONException e) {
-                            Toast.makeText(getApplicationContext(),e.toString(),Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(),e.toString(),Toast.LENGTH_LONG).show();
                             Log.d("Api_access_token","Parse Error");
                             e.printStackTrace();
                         }
@@ -392,10 +421,10 @@ public class HomeActivity extends ActionBarActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Api_access_token", "Error: " + error.getMessage());
-                        Toast.makeText(getApplicationContext(), error.toString(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), error.toString(),Toast.LENGTH_LONG).show();
                         hidePDialog();
 
-                        View errorView = inflater.inflate(R.layout.error_msg,null);
+                        View errorView = inflater1.inflate(R.layout.error_msg,null);
                         TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
                         errTv.setText("Couldn't load News.");
 
@@ -425,10 +454,10 @@ public class HomeActivity extends ActionBarActivity {
         protected Void doInBackground(Integer... params) {
 
             final int pgno = params[0];
-            runOnUiThread(new Runnable() {
+            fa.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getApplicationContext(),"Async Task to load page : " + pgno,Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(),"Async Task to load page : " + pgno,Toast.LENGTH_LONG).show();
                 }
             });
             try {
@@ -479,10 +508,10 @@ public class HomeActivity extends ActionBarActivity {
 
             } catch (Exception e){
 
-                runOnUiThread(new Runnable() {
+                fa.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(),"Couldn't load trending news.Try again",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),"Couldn't load trending news.Try again",Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -512,9 +541,11 @@ public class HomeActivity extends ActionBarActivity {
         }
     }
 
+    /*
     public Activity getActivity(){
-        return this;
+        return super.getActivity();
     }
+    */
 
     @Override
     public void onDestroy() {
@@ -538,17 +569,17 @@ public class HomeActivity extends ActionBarActivity {
     }
 
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
-        return true;
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        fa.getMenuInflater().inflate(R.menu.main_activity_menu, menu);
     }
+
+
 
     public void logoutGoogle(){
 
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(getActivity())
                 .setTitle("Logout")
                 .setMessage("Are you sure?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -560,7 +591,7 @@ public class HomeActivity extends ActionBarActivity {
                         }
                         try{
                             SharedPreferences pref;
-                            pref = getSharedPreferences("niooz",MODE_PRIVATE);
+                            pref = getActivity().getSharedPreferences("niooz",fa.MODE_PRIVATE);
                             SharedPreferences.Editor edit = pref.edit();
                             edit.putString("register","false");
                             edit.putString("provider", "none");
@@ -569,8 +600,8 @@ public class HomeActivity extends ActionBarActivity {
                         }catch (Exception ex){
                             Log.d("Register Status","UnRegistered but not saved SharedPrefs Error");
                         }
-                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                        finish();
+                        startActivity(new Intent(getActivity(),MainActivity.class));
+                        getActivity().finish();
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -584,11 +615,11 @@ public class HomeActivity extends ActionBarActivity {
 
 
     public void logoutFacebook(){
-        final Session session = Session.openActiveSessionFromCache(getApplicationContext());
+        final Session session = Session.openActiveSessionFromCache(getActivity());
         if (session != null) {
             if(session.isOpened())
             {
-                new AlertDialog.Builder(this)
+                new AlertDialog.Builder(getActivity())
                         .setTitle("Logout")
                         .setMessage("Are you sure?")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -596,7 +627,7 @@ public class HomeActivity extends ActionBarActivity {
                                 session.closeAndClearTokenInformation();
                                 try{
                                     SharedPreferences pref;
-                                    pref = getSharedPreferences("niooz",MODE_PRIVATE);
+                                    pref = getActivity().getSharedPreferences("niooz",fa.MODE_PRIVATE);
                                     SharedPreferences.Editor edit = pref.edit();
                                     edit.putString("register","false");
                                     edit.putString("provider", "none");
@@ -605,8 +636,8 @@ public class HomeActivity extends ActionBarActivity {
                                 }catch (Exception ex){
                                     Log.d("Register Status","UnRegistered but not saved SharedPrefs Error");
                                 }
-                                startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                finish();
+                                startActivity(new Intent(getActivity(),MainActivity.class));
+                                getActivity().finish();
                             }
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -620,7 +651,7 @@ public class HomeActivity extends ActionBarActivity {
             }
         }
         else {
-            Toast.makeText(getApplicationContext(),"Session doesn't exist",Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(),"Session doesn't exist",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -635,7 +666,7 @@ public class HomeActivity extends ActionBarActivity {
         {
             case R.id.logout :
                 SharedPreferences pref;
-                pref = getSharedPreferences("niooz", MODE_PRIVATE);
+                pref = getActivity().getSharedPreferences("niooz", fa.MODE_PRIVATE);
                 try {
 
                     String res = pref.getString("provider", null);
@@ -651,7 +682,7 @@ public class HomeActivity extends ActionBarActivity {
                 }
                 break;
             case R.id.action_category :
-                Intent i = new Intent(HomeActivity.this,CategoryActivity.class);
+                Intent i = new Intent(getActivity(),CategoryActivity.class);
                 startActivity(i);
         }
 
@@ -674,14 +705,14 @@ public class HomeActivity extends ActionBarActivity {
 
             final String resp = sh.makeServiceCall("http://api.itechnospot.com/status.php",ServiceHandler.GET);
 
-            runOnUiThread(new Runnable() {
+            fa.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(resp.equals("OK")){
+                    if (resp.equals("OK")) {
                         handler.removeCallbacks(this);
-                        Toast.makeText(getApplicationContext(),"GOT OK FROM SERVER",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "GOT OK FROM SERVER", Toast.LENGTH_LONG).show();
 
-                        final Dialog dialog = new Dialog(HomeActivity.this);
+                        final Dialog dialog = new Dialog(getActivity());
                         dialog.setContentView(R.layout.select_headline_layout);
                         dialog.setTitle("Add News");
                         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
@@ -691,7 +722,7 @@ public class HomeActivity extends ActionBarActivity {
 
                         String[] countryArray = {"India", "Pakistan", "USA", "UK"};
 
-                        ArrayAdapter adapter = new ArrayAdapter<String>(getApplicationContext(),R.layout.listview_textview_layout, countryArray);
+                        ArrayAdapter adapter = new ArrayAdapter<String>(getActivity(), R.layout.listview_textview_layout, countryArray);
                         shlv.setAdapter(adapter);
 
 

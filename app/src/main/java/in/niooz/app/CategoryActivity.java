@@ -119,7 +119,7 @@ public class CategoryActivity extends ActionBarActivity implements ScrollTabHold
     @Override
     public void onPageSelected(int position) {
         SparseArrayCompat< ScrollTabHolder> scrollTabHolders = mPagerAdapter.getScrollTabHolders();
-         ScrollTabHolder currentHolder = scrollTabHolders.valueAt(position);
+        ScrollTabHolder currentHolder = scrollTabHolders.valueAt(position);
         currentHolder.adjustScroll((int) (mHeader.getHeight() + ViewHelper.getTranslationY(mHeader)),(int)(mHeaderHeight));
 
     }
