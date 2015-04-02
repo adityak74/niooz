@@ -17,6 +17,9 @@
     <string name="title_activity_article_web_view">ArticleWebView</string>
     <string name="title_activity_article_sources">ArticleSourcesActivity</string>
     <string name="actionbar_title">Categories</string>
+    <string name="title_activity_category_fragment">CategoryFragment</string>
+    <string name="title_activity_specific_category_fragment">SpecificCategoryFragment</string>
+    <string name="title_activity_search_fragment">SearchFragment</string>
 
 
 </resources>

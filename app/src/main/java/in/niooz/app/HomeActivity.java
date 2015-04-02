@@ -10,11 +10,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,8 +29,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.ViewGroup.LayoutParams;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -92,6 +95,8 @@ public class HomeActivity extends Fragment {
     private boolean couldNotLoadNews = false;
     private String api_access_token;
     private int i = 0;
+    private ProgressBar pb;
+    private RelativeLayout pbrl;
 
     public static HomeActivity create(int pageNumber) {
         HomeActivity fragment = new HomeActivity();
@@ -117,7 +122,7 @@ public class HomeActivity extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        fa = (FragmentActivity)super.getActivity();
+        fa = super.getActivity();
         ViewGroup fl = (ViewGroup) inflater.inflate(R.layout.activity_home, container, false);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) fl.findViewById(R.id.swipe);
@@ -211,6 +216,15 @@ public class HomeActivity extends Fragment {
         //pDialog.setMessage("Loading...");
         //pDialog.show();
 
+        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        pbrl = new RelativeLayout(fa);
+        pbrl.setGravity(Gravity.CENTER);
+        pb = new ProgressBar(getActivity());
+        pb.setIndeterminate(true);
+        pb.setVisibility(View.VISIBLE);
+        pb.setLayoutParams(params);
+        pbrl.addView(pb);
+
         dataBaseHandler = new DataBaseHandler(getActivity());
 
         try{
@@ -225,14 +239,17 @@ public class HomeActivity extends Fragment {
             }else {
                 Log.d("DBSTORAGE","Cant Retrieved from Database = 0");
                 Log.d("DBSTORAGE","Cannot Retrieved from Database");
-                pDialog.setMessage("Loading from Internet");
-                pDialog.show();
+                //pDialog.setMessage("Loading from Internet");
+                //pDialog.show();
+                fl.addView(pbrl);
+
                 setupNews();
             }
         }catch (Exception ex){
             Log.d("DBSTORAGE","Cannot Retrieved from Database");
-            pDialog.setMessage("Loading from Internet");
-            pDialog.show();
+            //pDialog.setMessage("Loading from Internet");
+            //pDialog.show();
+            fl.addView(pbrl);
             setupNews();
         }
 
@@ -415,6 +432,7 @@ public class HomeActivity extends Fragment {
                         adapter.notifyDataSetChanged();
                         addNewsToDatabase(newsList);
                         couldNotLoadNews = true;
+                        pb.setVisibility(View.GONE);
                     }
                 },
                 new Response.ErrorListener() {
