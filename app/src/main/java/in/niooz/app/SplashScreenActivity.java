@@ -153,7 +153,7 @@ public class SplashScreenActivity extends Activity {
 
             if(!failed) {
 
-                Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                Intent i = new Intent(getApplicationContext(), MainHomeActivity.class);
                 i.putExtra("th1", th1);
                 i.putExtra("th2", th2);
                 i.putExtra("th3", th3);

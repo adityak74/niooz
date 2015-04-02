@@ -596,7 +596,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             }
 
 
-            Intent i = new Intent(MainActivity.this,HomeActivity.class);
+            Intent i = new Intent(MainActivity.this,MainHomeActivity.class);
             i.putExtra("th1",th1);
             i.putExtra("th2",th2);
             i.putExtra("th3",th3);
