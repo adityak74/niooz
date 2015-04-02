@@ -700,8 +700,7 @@ public class HomeActivity extends Fragment {
                 }
                 break;
             case R.id.action_category :
-                Intent i = new Intent(getActivity(),CategoryActivity.class);
-                startActivity(i);
+                break;
         }
 
 
