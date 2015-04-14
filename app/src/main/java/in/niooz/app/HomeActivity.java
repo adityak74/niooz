@@ -439,7 +439,7 @@ public class HomeActivity extends Fragment {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Api_access_token", "Error: " + error.getMessage());
-                        Toast.makeText(getActivity(), error.toString(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(fa, error.toString(),Toast.LENGTH_LONG).show();
                         hidePDialog();
 
                         View errorView = inflater1.inflate(R.layout.error_msg,null);

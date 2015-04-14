@@ -22,11 +22,14 @@ import com.astuetz.PagerSlidingTabStrip;
  * Created by aditya on 3/29/15.
  */
 public class MainHomeActivity extends ActionBarActivity {
-    private static final int NUM_PAGES = 3;
+    private static final int NUM_PAGES = 4;
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
     private ActionBar actionBar;
     private PagerSlidingTabStrip tabs;
+    private final int[] ICONS = { R.drawable.ic_blank_logo, R.drawable.ic_category_red,
+            R.drawable.ic_search_white , R.drawable.ic_male_white };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,12 +54,6 @@ public class MainHomeActivity extends ActionBarActivity {
         }
 
 
-
-        private final int[] ICONS = { R.drawable.ic_launcher_gplus, R.drawable.ic_launcher_gmail,
-                R.drawable.ic_launcher_gmaps };
-
-
-
         @Override
         public int getPageIconResId(int position) {
             return ICONS[position];
@@ -65,6 +62,10 @@ public class MainHomeActivity extends ActionBarActivity {
 
         @Override
         public Fragment getItem(int position) {
+            
+            if(position==3){
+                return SearchFragment.newInstance(position);
+            }
             if(position==2){
                 return SearchFragment.newInstance(position);
             }
@@ -75,29 +76,6 @@ public class MainHomeActivity extends ActionBarActivity {
                 return HomeActivity.create(position);
             }
         }
-
-        /*
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            // looks a little bit messy here
-
-
-			TextView v = new TextView(getApplicationContext());
-
-			v.setText("PAGE " + (position + 1));
-			final int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, getResources()
-                    .getDisplayMetrics());
-			v.setPadding(padding, padding, padding, padding);
-			v.setGravity(Gravity.CENTER);
-			container.addView(v, 0);
-			return v;
-
-        }
-        */
-
-
-
-
 
         @Override
         public int getCount() {

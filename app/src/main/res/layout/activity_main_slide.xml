@@ -9,11 +9,14 @@
         android:id="@+id/mainTabs"
         android:layout_width="match_parent"
         android:layout_height="48dip"
-        android:background="#fff"
+        android:background="#9A0000"
         app:pstsDividerColor="#00000000"
-        app:pstsIndicatorColor="#FF33B5E6"
+        app:pstsShouldExpand="true"
+        app:pstsIndicatorHeight="2dip"
+        app:pstsIndicatorColor="#FFFFFF"
         app:pstsTabPaddingLeftRight="14dip"
-        app:pstsUnderlineColor="#FF33B5E6"/>
+        app:pstsUnderlineHeight="0dip"
+        />
 
     <android.support.v4.view.ViewPager
         xmlns:android="http://schemas.android.com/apk/res/android"
