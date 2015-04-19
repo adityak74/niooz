@@ -79,7 +79,7 @@ public class NewsAdapter extends BaseAdapter{
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        final int _position = position;
+        //final int _position = position;
 
         if(layoutInflater == null){
             layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -88,9 +88,10 @@ public class NewsAdapter extends BaseAdapter{
         if(convertView==null){
 
             convertView = layoutInflater.inflate(R.layout.news_tabitem,null);
-            holder = new ViewHolder();
-            holder.likeBt = (Button) convertView.findViewById(R.id.likes);
-            holder.likeBt.setTag(holder);
+            //holder = new ViewHolder();
+            //holder.likeBt = (Button) convertView.findViewById(R.id.likes);
+            //holder.likeBt.setTag(holder);
+            /*
             holder.likeBt.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -112,6 +113,7 @@ public class NewsAdapter extends BaseAdapter{
 
                 }
             });
+            */
         }
 
         if(imageLoader == null){
@@ -129,7 +131,7 @@ public class NewsAdapter extends BaseAdapter{
         final TextView noofviewstv = (TextView) convertView.findViewById(R.id.noOfViewsTv);
         final TextView noofarticlestv = (TextView) convertView.findViewById(R.id.noOfArticlesTv);
         final TextView nooffollowerstv = (TextView) convertView.findViewById(R.id.noOfFollowersTv);
-        final Button likeBt = (Button) convertView.findViewById(R.id.likes);
+        final TextView likeTv = (TextView) convertView.findViewById(R.id.likes);
 
 
 
@@ -140,7 +142,7 @@ public class NewsAdapter extends BaseAdapter{
 
         headline.setText(n.getHeadline());
 
-        holder.likeBt.setText(String.valueOf(n.getLikes()));
+        likeTv.setText(String.valueOf(n.getLikes()));
 
         likes = n.getLikes();
 
@@ -152,10 +154,10 @@ public class NewsAdapter extends BaseAdapter{
 
         //set like button color and status
         if(n.getLiked()) {
-            likeBt.setBackground(activity.getResources().getDrawable(R.mipmap.ic_star_on));
+            //likeBt.setBackground(activity.getResources().getDrawable(R.mipmap.ic_star_on));
             //new likeHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }else{
-            likeBt.setBackground(activity.getResources().getDrawable(R.mipmap.ic_star_icon));
+            //likeBt.setBackground(activity.getResources().getDrawable(R.mipmap.ic_star_icon));
             //new likeHeadline().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 

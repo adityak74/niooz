@@ -6,11 +6,13 @@ package in.niooz.app.model;
 public class HeadlineSuggestion {
 
     private int headlineId;
-    private String headline;
+    private String headlineTitle;
 
-    public HeadlineSuggestion(int headlineId, String headline) {
+    public HeadlineSuggestion(){}
+
+    public HeadlineSuggestion(int headlineId, String headlineTitle) {
         this.headlineId = headlineId;
-        this.headline = headline;
+        this.headlineTitle = headlineTitle;
     }
 
     public int getHeadlineId() {
@@ -22,11 +24,11 @@ public class HeadlineSuggestion {
     }
 
     public String getHeadline(){
-        return headline;
+        return headlineTitle;
     }
 
-    public void setHeadline(){
-        this.headline = headline;
+    public void setHeadline(String headlineTitle){
+        this.headlineTitle = headlineTitle;
     }
 
 

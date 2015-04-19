@@ -22,13 +22,13 @@ import com.astuetz.PagerSlidingTabStrip;
  * Created by aditya on 3/29/15.
  */
 public class MainHomeActivity extends ActionBarActivity {
-    private static final int NUM_PAGES = 4;
+    private static final int NUM_PAGES = 5;
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
     private ActionBar actionBar;
     private PagerSlidingTabStrip tabs;
     private final int[] ICONS = { R.drawable.ic_blank_logo, R.drawable.ic_category_red,
-            R.drawable.ic_search_white , R.drawable.ic_male_white };
+            R.drawable.ic_search_white , R.drawable.ic_medal_white ,R.drawable.ic_male_white };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +62,11 @@ public class MainHomeActivity extends ActionBarActivity {
 
         @Override
         public Fragment getItem(int position) {
-            
+            if(position==4){
+                return UserFragment.newInstance(position);
+            }
             if(position==3){
-                return SearchFragment.newInstance(position);
+                return LeaderBoardFragment.newInstance(position);
             }
             if(position==2){
                 return SearchFragment.newInstance(position);

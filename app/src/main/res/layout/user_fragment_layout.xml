@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <LinearLayout
+        android:id="@+id/mainHead"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        android:background="#e0e0e0"
+        android:orientation="horizontal"
+
+        >
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:background="#9A0000"
+            android:layout_height="100dp"
+            android:layout_weight="0.6">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/profilePic"
+                android:background="#9A0000"
+                android:padding="0dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_male_white"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+        <View
+            android:layout_width="3dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="#bababa"
+            android:layout_height="match_parent"/>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:padding="3dp"
+            android:layout_height="100dp"
+            android:layout_weight="1.4">
+
+        <TextView
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Large Text"
+            android:id="@+id/profileName"
+             />
+    </RelativeLayout>
+
+    </LinearLayout>
+
+    <View
+        android:background="#ccc"
+        android:minHeight="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"></View>
+
+    <LinearLayout
+        android:id="@+id/mainMiddle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        android:background="#e0e0e0"
+        android:orientation="horizontal"
+
+        >
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:background="#4CAF50"
+            android:layout_height="100dp"
+            android:layout_weight="0.6">
+
+            <TextView
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="0"
+                android:id="@+id/profileScoreNumber"
+                />
+
+        </RelativeLayout>
+        <View
+            android:layout_width="3dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="#bababa"
+            android:layout_height="match_parent"/>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:padding="3dp"
+            android:layout_height="100dp"
+            android:layout_weight="1.4">
+
+            <TextView
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Score"
+                android:id="@+id/profileScore"
+                />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <View
+        android:background="#ccc"
+        android:minHeight="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"></View>
+
+    <LinearLayout
+        android:id="@+id/mainEnd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        android:background="#e0e0e0"
+        android:orientation="horizontal"
+
+        >
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:background="#2196F3"
+            android:layout_height="100dp"
+            android:layout_weight="0.6">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/profileBadge"
+                android:padding="0dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_medal_white"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+
+        </RelativeLayout>
+        <View
+            android:layout_width="3dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="#bababa"
+            android:layout_height="match_parent"/>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:padding="3dp"
+            android:layout_height="100dp"
+            android:layout_weight="1.4">
+
+            <TextView
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Your Level"
+                android:id="@+id/profileUserLevel"
+                />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

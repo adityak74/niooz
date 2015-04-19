@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,6 +23,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,6 +46,8 @@ import com.google.android.gms.plus.Plus;
 import com.nirhart.parallaxscroll.views.ParallaxListView;
 
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +63,8 @@ import java.util.TimerTask;
 
 import in.niooz.app.app.AppController;
 import in.niooz.app.adapter.NewsAdapter;
+import in.niooz.app.model.CategorySuggestion;
+import in.niooz.app.model.HeadlineSuggestion;
 import in.niooz.app.model.News;
 import in.niooz.app.util.DataBaseHandler;
 
@@ -82,7 +89,8 @@ public class HomeActivity extends Fragment {
     private NewsAdapter adapter;
     private String TAG = "HomeActivity";
     private String TRENDING_URL = "http://itechnospot.com/temp/trending.php";
-    private String BASE_URL = "http://www.itechnospot.com/api/newstest.php";
+    //private String BASE_URL = "http://www.itechnospot.com/api/newstest.php";
+    private String BASE_URL = "http://niooz.in/index.php/headlines";
     String th1,th2,th3,th4;
     private GoogleApiClient mGoogleApiClient;
     private int pageToLoad = 2;
@@ -97,6 +105,21 @@ public class HomeActivity extends Fragment {
     private int i = 0;
     private ProgressBar pb;
     private RelativeLayout pbrl;
+    private static String next_page_url = "";
+    private Button submitNewsButton;
+    private String SUBMIT_URL = "http://niooz.in/index.php/url";
+    private String STATUS_URL = "http://niooz.in/index.php/status";
+    private String SETCATEGORY_URL = "http://niooz.in/index.php/setCategory";
+    private String SETHEADLINE_URL = "http://niooz.in/index.php/setHeadline";
+    private String status;
+    private String[] Categories = new String[]{"news","politics","business","sport","technology","entertainment"};
+    private String suggestedCategoryLabel;
+    private int suggestedHeadlineId;
+    private Button categorySelectedButton,headlineSelectedButton,headlineNewSelectedButton;
+    private String TAG_URL = "URLSUBMIT";
+    private boolean looper_flag = false , newheadline = false , headline_id_selected = false , url_completed = false;
+
+    private boolean extracted_flag = false, suggested_flag = false , category_selected = false , headline_selected = false , categorized = false;
 
     public static HomeActivity create(int pageNumber) {
         HomeActivity fragment = new HomeActivity();
@@ -161,7 +184,7 @@ public class HomeActivity extends Fragment {
                 dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
                 dialog.show();
 
-                EditText urlInput = (EditText) dialog.findViewById(R.id.urlInput);
+                final EditText urlInput = (EditText) dialog.findViewById(R.id.urlInput);
                 urlInput.setSelection(urlInput.getText().length());
 
                 Button submitBt = (Button) dialog.findViewById(R.id.submitNewsButton);
@@ -170,7 +193,8 @@ public class HomeActivity extends Fragment {
                     public void onClick(View v) {
                         Toast.makeText(getActivity(),"Request for Submit",Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
-                        callAsynchronousTask();
+                        new submitURLTask().execute(urlInput.getText().toString());
+
                     }
                 });
 
@@ -263,82 +287,7 @@ public class HomeActivity extends Fragment {
                 adapter = new NewsAdapter(getActivity(),newsList);
                 newsListView.setAdapter(adapter);
 
-                Map<String, String> params = new HashMap<>();
-                params.put("api_access_token", api_access_token);
-                Log.d("Api_access_token",api_access_token);
-
-
-                final CustomRequest newsReq = new CustomRequest(Request.Method.POST,BASE_URL,params,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                Log.d(TAG, response.toString());
-                                hidePDialog();
-                                Log.d("Api_access_token",response.toString());
-
-
-
-                                try {
-                                    String next_page_url = response.getString("next_page_url");
-                                    JSONArray headlines = response.getJSONArray("headlines");
-
-                                    // Parsing json
-                                    for (i = 0; i < headlines.length(); i++) {
-
-
-                                        JSONObject obj = headlines.getJSONObject(i);
-                                        News news = new News();
-                                        news.setId(Integer.parseInt(obj.getString("id")));
-                                        news.setHeadlineBackgroundURL(obj.getString("image"));
-                                        news.setHeadline(obj.getString("title"));
-                                        news.setLikes(Integer.parseInt(obj.getString("likes_count")));
-                                        news.setViews(obj.getInt("report_count"));
-                                        news.setArticlesSubmitted(Integer.parseInt(obj.getString("submission_count")));
-                                        news.setNoOfFollowers(Integer.parseInt(obj.getString("sources_count")));
-                                        news.setFollowing(false);
-                                        news.setLiked(Boolean.parseBoolean(obj.getString("liked")));
-                                        //get category for color
-                                        news.setCategory(obj.getString("category"));
-
-                                        newsList.add(news);
-
-
-                                    }
-                                }catch (JSONException e) {
-                                    Toast.makeText(getActivity(),e.toString(),Toast.LENGTH_LONG).show();
-                                    Log.d("Api_access_token","Parse Error");
-                                    e.printStackTrace();
-                                }
-
-                                // notifying list adapter about data changes
-                                // so that it renders the list view with updated data
-                                adapter.notifyDataSetChanged();
-                                addNewsToDatabase(newsList);
-                                couldNotLoadNews = true;
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Log.d("Api_access_token", "Error: " + error.getMessage());
-                                Toast.makeText(getActivity(), error.toString(),Toast.LENGTH_LONG).show();
-                                hidePDialog();
-
-                                View errorView = inflater1.inflate(R.layout.error_msg,null);
-                                TextView errTv = (TextView)errorView.findViewById(R.id.errorTv);
-                                errTv.setText("Couldn't load News.");
-
-                                //newsListView.removeFooterView(footer);
-                                if(!couldNotLoadNews) {
-                                    newsListView.addFooterView(errorView);
-                                    couldNotLoadNews = true;
-                                }
-
-                            }
-
-                        });
-
-                AppController.getInstance().addToRequestQueue(newsReq);
+                setupNews();
 
                 //mSwipeRefreshLayout.setRefreshing(false);
                 new LoadTrendingNews().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -347,22 +296,29 @@ public class HomeActivity extends Fragment {
 
         });
 
-        /*
+
         newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 //Log.d("HomeActivity","GetCount : " + String.valueOf(newsListView.getCount()-1) + " LastVisible : " + (newsListView.getLastVisiblePosition()));
+
+
                 int visible = newsListView.getLastVisiblePosition();
                 int allchildcount = newsListView.getCount();
 
                     if (visible == (allchildcount - 1)) {
 
                         if(pageToLoad > pageLoaded) {
-                            Log.d("HomeActivity", "Load page number "  + pageToLoad);
-                            new LoadPage().execute(pageToLoad);
-                            pageLoaded++;
+
+                            if(!next_page_url.equals("end of results")) {
+                                Log.d("HomeActivity", "Load page number " + pageToLoad);
+                                new LoadPage().execute(BASE_URL + "?page=" + pageToLoad);
+                                pageLoaded++;
+                            }
                         }
                     }
+
+
 
             }
 
@@ -371,21 +327,31 @@ public class HomeActivity extends Fragment {
 
             }
         });
-        */
+
 
         return fl;
     }
 
 
-
-
     public boolean setupNews(){
+        return setupNews(null);
+    }
 
+
+    public boolean setupNews(String next_url){
+
+        String NEW_BASE_URL;
         Map<String, String> params = new HashMap<>();
         params.put("api_access_token", api_access_token);
-        Log.d("Api_access_token",api_access_token);
+        Log.d("Api_access_token", api_access_token);
 
-        final CustomRequest newsReq = new CustomRequest(Request.Method.POST,BASE_URL,params,
+        if(next_url==null) {
+            NEW_BASE_URL = BASE_URL;
+        }else{
+            NEW_BASE_URL = next_url;
+        }
+
+        final CustomRequest newsReq = new CustomRequest(Request.Method.POST,NEW_BASE_URL,params,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -396,7 +362,8 @@ public class HomeActivity extends Fragment {
 
 
                         try {
-                            String next_page_url = response.getString("next_page_url");
+
+                            next_page_url = response.getString("next_page_url");
                             JSONArray headlines = response.getJSONArray("headlines");
 
                             // Parsing json
@@ -408,11 +375,11 @@ public class HomeActivity extends Fragment {
                                 news.setId(Integer.parseInt(obj.getString("id")));
                                 news.setHeadlineBackgroundURL(obj.getString("image"));
                                 news.setHeadline(obj.getString("title"));
-                                news.setLikes(Integer.parseInt(obj.getString("likes_count")));
+                                news.setLikes(Integer.parseInt(obj.getString("plus_count")));
                                 news.setViews(obj.getInt("report_count"));
-                                news.setArticlesSubmitted(Integer.parseInt(obj.getString("submission_count")));
-                                news.setNoOfFollowers(Integer.parseInt(obj.getString("sources_count")));
-                                news.setFollowing(false);
+                                //news.setArticlesSubmitted(Integer.parseInt(obj.getString("submission_count")));
+                                //news.setNoOfFollowers(Integer.parseInt(obj.getString("sources_count")));
+                                //news.setFollowing(false);
                                 news.setLiked(Boolean.parseBoolean(obj.getString("liked")));
                                 //get category for color
                                 news.setCategory(obj.getString("category"));
@@ -430,7 +397,7 @@ public class HomeActivity extends Fragment {
                         // notifying list adapter about data changes
                         // so that it renders the list view with updated data
                         adapter.notifyDataSetChanged();
-                        addNewsToDatabase(newsList);
+                        //addNewsToDatabase(newsList);
                         couldNotLoadNews = true;
                         pb.setVisibility(View.GONE);
                     }
@@ -461,7 +428,7 @@ public class HomeActivity extends Fragment {
 
 
 
-    public class LoadPage extends AsyncTask<Integer,Void,Void>{
+    public class LoadPage extends AsyncTask<String,Void,Void>{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -469,9 +436,10 @@ public class HomeActivity extends Fragment {
         }
 
         @Override
-        protected Void doInBackground(Integer... params) {
+        protected Void doInBackground(String... params) {
 
-            final int pgno = params[0];
+            final String pgno = params[0];
+            setupNews(params[0]);
             fa.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -743,6 +711,7 @@ public class HomeActivity extends Fragment {
                         shlv.setAdapter(adapter);
 
 
+
                         timer.cancel();
                         timer.purge();
                     }
@@ -762,31 +731,365 @@ public class HomeActivity extends Fragment {
         }
     }
 
+    public class submitURLTask extends AsyncTask<String,Void,Void>{
+        @Override
+        protected Void doInBackground(final String... params) {
+            fa.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getActivity(),"Got URL : " + params[0],Toast.LENGTH_SHORT).show();
+                }
+            });
+            callAsynchronousTask(params[0]);
+            return null;
+        }
 
-    public void callAsynchronousTask() {
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getActivity(),"Done",Toast.LENGTH_LONG).show();
+            super.onPostExecute(aVoid);
+        }
+    }
+
+
+    public void callAsynchronousTask(final String url) {
+        Looper.prepare();
+        try {
+            SharedPreferences pref;
+            pref = fa.getSharedPreferences("niooz", fa.MODE_PRIVATE);
+            api_access_token = pref.getString("api_access_token", null);
+            Log.d("Api_access_token", api_access_token);
+        } catch (Exception ex) {
+            Log.d("Api_access_token","Not found");
+        }
+
+        Log.d(TAG_URL,"Got API Access Token");
+
+        final List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("api_access_token",api_access_token));
+        params.add(new BasicNameValuePair("url",url));
+
+        Log.d(TAG_URL,"Params Built" + params);
+
+        final ServiceHandler sh = new ServiceHandler();
+
+        //submit the url
+
+        String resp = sh.makeServiceCall(SUBMIT_URL,ServiceHandler.POST,params);
+
+        Log.d(TAG_URL,"URL Submitted" + resp);
+
+        try{
+        JSONObject obj = new JSONObject(resp);
+        status = obj.getString("status");
+        Log.d(TAG_URL,"URL Submitted Status" + status);
+        if(status.equals("submitted")){
+            try {
+                SharedPreferences pref;
+                pref = fa.getSharedPreferences("niooz", fa.MODE_PRIVATE);
+                SharedPreferences.Editor edit = pref.edit();
+                int submitted_id = obj.getInt("id");
+                Log.d(TAG_URL,"URL Submitted Id : " + submitted_id);
+                edit.putInt("submitted_id",submitted_id);
+                edit.apply();
+                params.remove(1);
+            } catch (Exception ex) {
+                Log.d("Api_access_token","Not found");
+            }
+        }}catch (JSONException ex){
+            Toast.makeText(getActivity(),"Some Error Occurred",Toast.LENGTH_LONG).show();
+        }
+
+        try {
+            SharedPreferences pref;
+            pref = fa.getSharedPreferences("niooz", fa.MODE_PRIVATE);
+            int url_id = pref.getInt("submitted_id", 0);
+            params.add(new BasicNameValuePair("url_id",String.valueOf(url_id)));
+        }catch (Exception ex){
+            //Toast.makeText(getActivity(),"SharedPref Error",Toast.LENGTH_LONG).show();
+        }
+
+        Log.d(TAG_URL,"URL Submitted Status stored url_id");
+        Log.d(TAG_URL,"Starting timer task");
+
+        Log.d(TAG_URL,"params before starting timer task" + params);
         timer = new Timer();
         doAsynchronousTask = new TimerTask() {
             @Override
             public void run() {
+
+                try {
+                    Log.d(TAG_URL,"params inside timer task" + params);
+                    status = sh.makeServiceCall(STATUS_URL,ServiceHandler.POST,params);
+                    Log.d(TAG_URL,status);
+                    JSONObject statusObj = new JSONObject(status);
+                    Log.d(TAG_URL,"Status : " + status);
+                    if(statusObj.getString("status").equals("extracted") && statusObj.getJSONArray("categories")!=null && !extracted_flag){
+                        Log.d(TAG_URL,"Extracted" + params);
+                        extracted_flag = true;
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(),"URL Extracted",Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                        //get user click from here to get category
+                        List<CategorySuggestion> cs = new ArrayList<CategorySuggestion>();
+                        JSONArray arr = statusObj.getJSONArray("categories");
+
+                        for(int i=0;i<arr.length();i++){
+                            JSONObject jsoncsobj = arr.getJSONObject(i);
+                            CategorySuggestion csobj = new CategorySuggestion();
+                            csobj.setCategoryLabel(jsoncsobj.getString("label"));
+                            csobj.setCode(jsoncsobj.getString("code"));
+                            cs.add(csobj);
+                        }
+
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                final Dialog dialog1 = new Dialog(getActivity());
+                                dialog1.setContentView(R.layout.select_category_layout);
+                                dialog1.setTitle("Set Category");
+                                dialog1.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                                dialog1.show();
+
+
+
+                                ListView sclv = (ListView) dialog1.findViewById(R.id.categorySuggestionListView);
+                                ArrayAdapter adapter = new ArrayAdapter<String>(getActivity(), R.layout.listview_textview_layout, Categories);
+                                sclv.setAdapter(adapter);
+
+                                sclv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                                        suggestedCategoryLabel = (String) parent.getItemAtPosition(position);
+                                        Toast.makeText(getActivity(),"You selected : " + suggestedCategoryLabel,Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                                categorySelectedButton = (Button)dialog1.findViewById(R.id.categorySelectedButton);
+                                categorySelectedButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        dialog1.dismiss();
+                                        category_selected = true;
+                                    }
+                                });
+                            }
+                        });
+
+
+
+                    }
+
+                    if(statusObj.getString("status").equals("extracted") && statusObj.getJSONArray("categories")!=null && extracted_flag && category_selected && !categorized) {
+
+                        if(!looper_flag){
+                            Looper.prepare();
+                            looper_flag = true;
+                        }
+
+                        params.add(new BasicNameValuePair("category_label", suggestedCategoryLabel));
+                        final String resp = sh.makeServiceCall(SETCATEGORY_URL, ServiceHandler.POST, params);
+                        params.remove(2);
+
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+
+                                    Toast.makeText(getActivity(), "Categorising", Toast.LENGTH_SHORT).show();
+                                    //timer.wait(10);
+                                    JSONObject respobj = new JSONObject(resp);
+                                    if (respobj.getString("status").equals("categorised")) {
+                                        categorized = true;
+                                        Toast.makeText(getActivity(), "URL Categorised Successfully", Toast.LENGTH_SHORT).show();
+                                        //params.remove(2);
+
+                                    } else {
+                                        //params.remove(2);
+                                    }
+                                }catch (Exception ex) {
+                                    Toast.makeText(getActivity(),"Some problem." + ex.toString(),Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+
+
+                    }
+
+                    if(statusObj.getString("status").equals("suggested") && statusObj.getJSONArray("headlines")!=null && extracted_flag && !suggested_flag && categorized && !headline_selected){
+                        suggested_flag = true;
+                        Toast.makeText(getActivity(),"Suggested HeadLines",Toast.LENGTH_LONG).show();
+                        Log.d(TAG_URL,"Headline Suggested");
+                        //get user click for headline or get new headline
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(),"URL Suggested Headlines",Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                        //get user click from here to get category
+                        //List<HeadlineSuggestion> hs = new ArrayList<HeadlineSuggestion>();
+                        JSONArray arr = statusObj.getJSONArray("headlines");
+                        final String[] headlinesArray = new String[arr.length()];
+                        final int[] headlinesIdArray = new int[arr.length()];
+                        Log.d(TAG_URL,"Headline arr-length : " + arr.length());
+                        int i = 0;
+                        for(i=0;i<arr.length();i++){
+                            JSONObject jsonhsobj = arr.getJSONObject(i);
+
+                            //HeadlineSuggestion hsobj = new HeadlineSuggestion();
+                            //hsobj.setHeadline(jsonhsobj.getString("title"));
+                            //hsobj.setHeadlineId(Integer.parseInt(jsonhsobj.getString("id")));
+                            //hs.add(hsobj);
+
+                            headlinesArray[i] = jsonhsobj.getString("title");
+                            headlinesIdArray[i] = Integer.parseInt(jsonhsobj.getString("id"));
+                        }
+
+                        Log.d(TAG_URL,"HeadlineArr : " + headlinesArray);
+                        Log.d(TAG_URL,"HeadlineArr : " + headlinesIdArray);
+
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                final Dialog dialog2 = new Dialog(getActivity());
+                                dialog2.setContentView(R.layout.select_headline_layout);
+                                dialog2.setTitle("Set Headline");
+                                dialog2.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+                                dialog2.show();
+
+
+
+                                ListView shlv = (ListView) dialog2.findViewById(R.id.headlineSuggestionListView);
+                                ArrayAdapter adapter = new ArrayAdapter<String>(getActivity(), R.layout.listview_textview_layout, headlinesArray);
+                                shlv.setAdapter(adapter);
+
+                                shlv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                        suggestedHeadlineId = headlinesIdArray[position];
+                                    }
+                                });
+
+                                headlineSelectedButton = (Button)dialog2.findViewById(R.id.headlineSelectDoneButton);
+                                headlineNewSelectedButton = (Button) dialog2.findViewById(R.id.newHeadlineSelectButton);
+
+                                headlineNewSelectedButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        dialog2.dismiss();
+                                        headline_selected = true;
+                                        newheadline = true;
+
+                                    }
+                                });
+
+                                headlineSelectedButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        dialog2.dismiss();
+                                        headline_selected = true;
+                                        headline_id_selected = true;
+
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+
+                    if(statusObj.getString("status").equals("suggested") && statusObj.getJSONArray("headlines")!=null && extracted_flag && suggested_flag && categorized && headline_selected && !url_completed) {
+
+                        if(!looper_flag) {
+                            Looper.prepare();
+                            looper_flag = true;
+                        }
+
+                        if(newheadline) {
+                            params.add(new BasicNameValuePair("headline_id", "new"));
+                        }else if(headline_id_selected){
+                            params.add(new BasicNameValuePair("headline_id",String.valueOf(suggestedHeadlineId)));
+                        }
+                        String resp = sh.makeServiceCall(SETHEADLINE_URL,ServiceHandler.POST,params);
+                        final JSONObject respobj = new JSONObject(resp);
+                        params.remove(2);
+
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if(respobj.getString("status").equals("completed")){
+                                        Toast.makeText(getActivity(),"URL Headline Suggested",Toast.LENGTH_SHORT).show();
+                                        url_completed = true;
+                                    }
+
+                                }catch (Exception ex) {
+                                    Toast.makeText(getActivity(),"Some problem." + ex.toString(),Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+
+
+                    }
+
+
+
+                    if(statusObj.getString("status").equals("rejected")){
+
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(),"Article Rejected",Toast.LENGTH_LONG).show();
+                                //Done
+                                timer.purge();
+                                timer.cancel();
+
+                            }
+                        });
+
+
+                    }
+
+
+                    if(statusObj.getString("status").equals("completed") && extracted_flag && suggested_flag && headline_selected && url_completed){
+
+                        fa.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(),"URL Submitted Successfully",Toast.LENGTH_LONG).show();
+                                //Done
+                                timer.purge();
+                                timer.cancel();
+
+                            }
+                        });
+
+
+                    }
+
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    Log.d(TAG_URL,e.toString());
+                }
+
+
                 handler.post(new Runnable() {
                     public void run() {
-                        try {
-                            UpdateHeadline performBackgroundTask = new UpdateHeadline();
-                            // PerformBackgroundTask this class is the class that extends AsynchTask
-                            performBackgroundTask.execute();
 
-                            performBackgroundTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-                            //AsyncTask.Status st = performBackgroundTask.getStatus();
-                            //Toast.makeText(getApplicationContext(),st.toString(),Toast.LENGTH_LONG).show();
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                        }
                     }
                 });
             }
         };
-        timer.schedule(doAsynchronousTask, 0, 2000); //execute in every 10000 ms
+        timer.schedule(doAsynchronousTask, 0, 20000); //execute in every 5 secs
     }
 
 

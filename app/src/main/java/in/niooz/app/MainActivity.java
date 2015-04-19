@@ -17,6 +17,7 @@ package in.niooz.app;
     import android.view.animation.AccelerateInterpolator;
     import android.view.animation.Animation;
     import android.view.animation.TranslateAnimation;
+    import android.widget.Button;
     import android.widget.ImageView;
     import android.widget.TextView;
     import android.widget.Toast;
@@ -75,6 +76,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private float lastX;
     private String provider;
     Animation slide_in_left, slide_out_right;
+    private Button submitNewsButton;
 
 
     private Session.StatusCallback callback = new Session.StatusCallback() {

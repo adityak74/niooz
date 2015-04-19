@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ListView
@@ -10,12 +10,12 @@
         android:choiceMode="singleChoice"
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp"
-        android:id="@+id/headlineSuggestionListView"
-        android:layout_above="@+id/headlineSelectDoneButton"
+        android:id="@+id/categorySuggestionListView"
+        android:layout_above="@+id/categorySelectedButton"
         android:layout_gravity="center_horizontal" />
 
     <Button
-        android:id="@+id/headlineSelectDoneButton"
+        android:id="@+id/categorySelectedButton"
         android:layout_width="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
@@ -23,13 +23,6 @@
         android:text="Done"
         android:layout_height="wrap_content" />
 
-    <Button
-        android:id="@+id/newHeadlineSelectButton"
-        android:layout_width="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:text="New Headline"
-        android:layout_height="wrap_content" />
+
 
 </RelativeLayout>
