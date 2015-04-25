@@ -6,6 +6,7 @@ package in.niooz.app.model;
 public class CategorySuggestion {
     private  String categoryLabel="";
     private  String code="";
+    private int suggested_category=0;
 
 
     /*********** Set Methods ******************/
@@ -19,6 +20,8 @@ public class CategorySuggestion {
     {
         this.code = code;
     }
+
+    public void setSuggested_category(int flag){ this.suggested_category = flag;}
 
 
 
@@ -34,5 +37,6 @@ public class CategorySuggestion {
         return this.code;
     }
 
+    public int getSuggested_category(){ return  this.suggested_category; }
 
 }
